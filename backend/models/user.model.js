@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         select: false,
-        min: [6, "Password should atleast be 6 characters."]
+        minlength: [6, "Password should atleast be 6 characters."]
     },
     role:{
         type: String,
@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.generateAuthToken = function(){
-    const token = jwt.sign({_id: this._id}, process.env.JWT_SECRET_KEY, {expiresIn: process.env.TOKEN_EXPIRY});
+    const token = jwt.sign({userId: this._id}, process.env.JWT_SECRET_KEY, {expiresIn: process.env.TOKEN_EXPIRY});
     return token;
 };
 

@@ -32,3 +32,4 @@ module.exports.loginUser = async (data) => {
     user.password = undefined; 
     return user;
 }
+

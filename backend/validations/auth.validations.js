@@ -1,5 +1,6 @@
 const { body } = require("express-validator");
 const collegeModel = require("../models/college.model");
+const mongoose = require("mongoose");
 
 exports.signupValidation = [
   body("name").notEmpty().withMessage("name is required."),
@@ -16,7 +17,7 @@ exports.signupValidation = [
     .custom((value) => mongoose.Types.ObjectId.isValid(value))
     .withMessage("Invalid collegeId format")
     .custom(async (value) => {
-      const college = await College.findById(value);
+      const college = await collegeModel.findById(value);
       if (!college) {
         throw new Error("College does not exist");
       }

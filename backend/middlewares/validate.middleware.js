@@ -1,6 +1,6 @@
 const { validationResult } = require("express-validator");
 
-exports.validateMiddleware = async (req, res, next) => {
+module.exports.validateMiddleware = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
