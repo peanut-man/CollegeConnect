@@ -12,3 +12,4 @@ router.post('/login', loginValidation, validateMiddleware, loginUser);
 router.get('/me', authMiddleware.getUser, getUser);
 
 router.post('/logout', authMiddleware.getUser, logoutUser);
+module.exports = router;
