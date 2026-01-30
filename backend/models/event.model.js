@@ -48,4 +48,10 @@ const eventSchema = new mongoose.Schema({
     timestamps: true
 })
 
+eventSchema.index({ isActive: 1, likesCount: -1, createdAt: -1 });
+
+eventSchema.index({ collegeId: 1, isActive: 1, createdAt: -1 });
+
+
+
 module.exports = mongoose.model('Event', eventSchema);

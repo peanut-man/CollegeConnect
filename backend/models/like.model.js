@@ -13,4 +13,7 @@ const likeSchema = new mongoose.Schema({
     timestamps: true
 })
 
+likeSchema.index({ userId: 1, eventId: 1 }, { unique: true });
+
+
 module.exports = mongoose.model('Like', likeSchema);

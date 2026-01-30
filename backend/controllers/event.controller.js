@@ -1,74 +1,140 @@
-const {createEvent, getAllEvents, getEventById, updateEventById, deleteEventById} = require('../services/event.service');
-const eventModel = require('../models/event.model');
+const eventService = require("../services/event.service");
 
-// createEvent
+// CREATE EVENT
 module.exports.createEvent = async (req, res, next) => {
-    try {
-        const event = await createEvent(req.body);
-        res.status(201).json({
-            success: true,
-            data: event
-        });
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const event = await eventService.createEvent(req.body, req.user);
+
+    res.status(201).json({
+      success: true,
+      data: event,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-// getAllEvents
+// GET ALL EVENTS
 module.exports.getAllEvents = async (req, res, next) => {
-    try {
-        const events = await getAllEvents();
-        res.status(200).json({
-            success: true,
-            data: events
-        });
-    }
-    catch (error) {
-        next(error);
-    }
+  try {
+    const events = await eventService.getAllEvents();
+
+    res.status(200).json({
+      success: true,
+      data: events,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-//getEventsByEventId
+// GET EVENT BY ID
 module.exports.getEventById = async (req, res, next) => {
-    try {
-        const eventId = req.params.eventId; 
-        const event = await getEventById(eventId);
-        res.status(200).json({
-            success: true,
-            data: event
-        });
-    } catch (error) {
-        next(error);
-    }   
+  try {
+    const { eventId } = req.params;
+
+    const event = await eventService.getEventById(eventId);
+
+    res.status(200).json({
+      success: true,
+      data: event,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-//updateEventById
+// UPDATE EVENT BY ID
 module.exports.updateEventById = async (req, res, next) => {
-    try {   
-        const eventId = req.params.eventId;
-        const updateData = req.body;
-        const user = req.user;
-        const event = await updateEventById(eventId, updateData, user);
-        res.status(200).json({
-            success: true,
-            data: event
-        });
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const { eventId } = req.params;
+    const updateData = req.body;
+    const user = req.user;
+
+    const updatedEvent = await eventService.updateEventById(
+      eventId,
+      updateData,
+      user
+    );
+
+    res.status(200).json({
+      success: true,
+      data: updatedEvent,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-//deleteEventById (soft delete)
+// DELETE EVENT BY ID (SOFT DELETE)
 module.exports.deleteEventById = async (req, res, next) => {
-    try {
-        const eventId = req.params.eventId;
-        const user = req.user;
-        const event = await deleteEventById(eventId, user);
-        res.status(200).json({
-            success: true,
-            data: event
-        });
-    } catch (error) {
-        next(error);
-    }       
+  try {
+    const { eventId } = req.params;
+    const user = req.user;
+
+    const deletedEvent = await eventService.deleteEventById(eventId, user);
+
+    res.status(200).json({
+      success: true,
+      data: deletedEvent,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET EVENTS BY USER'S COLLEGE
+module.exports.getEventByCollegeId = async (req, res, next) => {
+  try {
+    const { collegeId } = req.user;
+
+    if (!collegeId) {
+      return res.status(400).json({
+        success: false,
+        message: "User is not associated with a college",
+      });
+    }
+
+    const events = await eventService.getEventByCollegeId(collegeId);
+
+    res.status(200).json({
+      success: true,
+      data: events,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET TRENDING EVENTS
+module.exports.getTrendingEvents = async (req, res, next) => {
+  try {
+    const events = await eventService.getTrendingEvents();
+    res.status(200).json({
+      success: true,
+      data: events,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET NEARBY EVENTS
+module.exports.getNearbyEvents = async (req, res, next) => {
+  try {
+    const { collegeId } = req.user;
+    if (!collegeId) {
+      return res.status(400).json({
+        success: false,
+        message: "User is not associated with a college",
+      });
+    }
+    const events = await eventService.getNearbyEvents(collegeId);
+    res.status(200).json({
+      success: true,
+      data: events,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
