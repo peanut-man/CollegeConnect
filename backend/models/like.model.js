@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const likeSchema = new mongoose.Schema({
     userId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user'
+        ref: 'User'
     },
     eventId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'event'
+        ref: 'Event'
     }
 },{
     timestamps: true

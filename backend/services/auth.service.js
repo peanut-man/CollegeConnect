@@ -1,4 +1,5 @@
 const userModel = require("../models/user.model");
+const AppError = require("../utils/appError");
 
 module.exports.createUser = async (data)=>{
     const {name, email, password, role, collegeId} = data;
@@ -18,16 +19,16 @@ module.exports.createUser = async (data)=>{
 module.exports.loginUser = async (data) => {
     const {email, password} = data;
     if(!email || !password){
-        throw new Error("Both are required");
+        throw new AppError("Email and password are required", 400);
     }
 
     const user = await userModel.findOne({email}).select('+password');
     if(!user){
-        throw new Error("Email or password incorrect.");
+        throw new AppError("Email or password incorrect.", 401);
     }
     const isMatch = await user.comparePassword(password);
     if(!isMatch){
-        throw new Error("Email or password incorrect.")
+        throw new AppError("Email or password incorrect.", 401);
     }
     user.password = undefined; 
     return user;

@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth.routes')
 const collegeRoutes = require('./routes/college.routes');
 const eventRoutes = require('./routes/event.routes');
 const likeRoutes = require('./routes/like.routes');
+const errorHandler = require('./middlewares/error.middleware');
 const connectToDb = require('./config/db');
 connectToDb();
 app.use(cors());
@@ -24,5 +25,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/colleges', collegeRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/likes", likeRoutes);
+
+// Centralized error handler
+app.use(errorHandler);
 
 module.exports = app;

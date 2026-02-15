@@ -1,4 +1,5 @@
 const collegeModel = require("../models/college.model");
+const AppError = require("../utils/appError");
 
 module.exports.createCollege = async (collegeData) => {
   try {
@@ -12,6 +13,6 @@ module.exports.createCollege = async (collegeData) => {
     });
     return college;
   } catch (error) {
-    throw new Error("Error creating college: " + error.message);
+    throw new AppError("Error creating college: " + error.message, 500);
   }
 };

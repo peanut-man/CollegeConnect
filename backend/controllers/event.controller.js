@@ -1,4 +1,5 @@
 const eventService = require("../services/event.service");
+const AppError = require("../utils/appError");
 
 // CREATE EVENT
 module.exports.createEvent = async (req, res, next) => {
@@ -89,10 +90,7 @@ module.exports.getEventByCollegeId = async (req, res, next) => {
     const { collegeId } = req.user;
 
     if (!collegeId) {
-      return res.status(400).json({
-        success: false,
-        message: "User is not associated with a college",
-      });
+      return next(new AppError("User is not associated with a college", 400));
     }
 
     const events = await eventService.getEventByCollegeId(collegeId);
@@ -124,10 +122,7 @@ module.exports.getNearbyEvents = async (req, res, next) => {
   try {
     const { collegeId } = req.user;
     if (!collegeId) {
-      return res.status(400).json({
-        success: false,
-        message: "User is not associated with a college",
-      });
+      return next(new AppError("User is not associated with a college", 400));
     }
     const events = await eventService.getNearbyEvents(collegeId);
     res.status(200).json({

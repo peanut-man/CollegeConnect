@@ -1,12 +1,13 @@
 const userModel = require("../models/user.model");
 const authService = require("../services/auth.service");
+const AppError = require("../utils/appError");
 
 module.exports.signUpUser = async (req, res, next) => {
   try {
     const { email } = req.body;
     const isUserAlready = await userModel.findOne({ email });
     if (isUserAlready) {
-      return res.status(409).json({ message: "User already exists." });
+      return next(new AppError("User already exists.", 409));
     }
 
     const user = await authService.createUser(req.body);
