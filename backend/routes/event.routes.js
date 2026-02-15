@@ -11,7 +11,7 @@ const {
   getNearbyEvents
 } = require("../controllers/event.controller");
 const { createEventValidation } = require("../validations/event.validations");
-const validateMiddleware = require("../middlewares/validate.middleware");
+const {validateMiddleware} = require("../middlewares/validate.middleware");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
 

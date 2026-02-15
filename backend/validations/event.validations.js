@@ -19,9 +19,6 @@ exports.createEventValidation = [
     body('collegeId')
         .notEmpty().withMessage('College ID is required')
         .isMongoId().withMessage('College ID must be a valid Mongo ID'),
-    body('organizerId')
-        .notEmpty().withMessage('Organizer ID is required')
-        .isMongoId().withMessage('Organizer ID must be a valid Mongo ID'),
     body('externalLink')
         .optional()
         .isURL().withMessage('External link must be a valid URL')
