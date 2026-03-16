@@ -1,12 +1,11 @@
 const { validationResult } = require("express-validator");
+const AppError = require("../utils/appError");
 
 module.exports.validateMiddleware = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      message: "Validation failed",
-      errors: errors.array(),
-    });
+    const [firstError] = errors.array();
+    return next(new AppError(firstError?.msg || "Validation failed", 400));
   }
 
   next();

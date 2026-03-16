@@ -9,8 +9,11 @@ exports.signupValidation = [
     .isLength({ min: 6 })
     .withMessage("Password must be atleast 6 characters."),
   body("role")
-    .isIn(["Student", "Organizer", "Admin"])
-    .withMessage("Role must be Student, Organizer, or Admin."),
+    .notEmpty()
+    .withMessage("role is required")
+    .bail()
+    .isIn(["Student", "Organizer"])
+    .withMessage("role not allowed"),
   body("collegeId")
     .notEmpty()
     .withMessage("collegeId is required")

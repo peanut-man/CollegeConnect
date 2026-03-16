@@ -5,7 +5,7 @@ const {validateMiddleware} = require('../middlewares/validate.middleware')
 const {signupValidation, loginValidation} = require('../validations/auth.validations');
 const {signUpUser, loginUser, getUser, logoutUser} = require('../controllers/auth.controller');
 
-router.get('/me', authMiddleware.getUser, getUser);
+router.get('/me', authMiddleware.getOptionalUser, getUser);
 
 router.post('/signup', signupValidation, validateMiddleware, signUpUser);
 
