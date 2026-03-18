@@ -7,10 +7,16 @@ function ProtectedRoute({ children, requireRoles }) {
 
   if (!authReady || loading) {
     return (
-      <section className="state-panel">
-        <p className="eyebrow">Checking session</p>
-        <h1>Loading your space</h1>
-        <p>We are syncing your account before we open this page.</p>
+      <section className="p-6 rounded-2xl border border-white/10 bg-[var(--color-panel)] shadow-[var(--shadow-panel)]">
+        <p className="m-0 mb-2 uppercase text-xs tracking-widest text-[var(--color-accent-cool)]">
+          Checking session
+        </p>
+        <h1 className="m-0 text-[clamp(2.5rem,5vw,4.75rem)] leading-[0.98] tracking-tight">
+          Loading your space
+        </h1>
+        <p className="max-w-prose text-[var(--color-muted)]">
+          We are syncing your account before we open this page.
+        </p>
       </section>
     );
   }
@@ -21,10 +27,14 @@ function ProtectedRoute({ children, requireRoles }) {
 
   if (requireRoles && !requireRoles.includes(user.role)) {
     return (
-      <section className="state-panel">
-        <p className="eyebrow">Access limited</p>
-        <h1>This page is not available for your role.</h1>
-        <p>
+      <section className="p-6 rounded-2xl border border-white/10 bg-[var(--color-panel)] shadow-[var(--shadow-panel)]">
+        <p className="m-0 mb-2 uppercase text-xs tracking-widest text-[var(--color-accent-cool)]">
+          Access limited
+        </p>
+        <h1 className="m-0 text-[clamp(2.5rem,5vw,4.75rem)] leading-[0.98] tracking-tight">
+          This page is not available for your role.
+        </h1>
+        <p className="max-w-prose text-[var(--color-muted)]">
           Sign in with an organizer or admin account to create and manage
           events.
         </p>

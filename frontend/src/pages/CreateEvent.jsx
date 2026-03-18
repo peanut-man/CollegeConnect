@@ -50,15 +50,18 @@ function CreateEvent() {
   }
 
   return (
-    <div className="page-stack">
+    <div className="grid gap-6">
       <PageIntro
         eyebrow="Organizer studio"
         title="Publish a new event"
         text="This form matches the backend create-event contract, including the current temporary `collegeId` requirement."
       />
 
-      <form className="editor-card" onSubmit={handleSubmit}>
-        <label>
+      <form
+        className="grid gap-4 p-5 md:p-8 rounded-2xl border border-white/10 bg-[var(--color-panel)] shadow-[var(--shadow-panel)]"
+        onSubmit={handleSubmit}
+      >
+        <label className="grid gap-2 text-amber-50">
           Event title
           <input
             type="text"
@@ -70,7 +73,7 @@ function CreateEvent() {
           />
         </label>
 
-        <label>
+        <label className="grid gap-2 text-amber-50">
           Description
           <textarea
             name="description"
@@ -82,8 +85,8 @@ function CreateEvent() {
           />
         </label>
 
-        <div className="editor-grid">
-          <label>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <label className="grid gap-2 text-amber-50">
             Category
             <select name="category" value={formData.category} onChange={handleChange}>
               <option value="Hackathon">Hackathon</option>
@@ -94,7 +97,7 @@ function CreateEvent() {
             </select>
           </label>
 
-          <label>
+          <label className="grid gap-2 text-amber-50">
             Event date
             <input
               type="date"
@@ -105,7 +108,7 @@ function CreateEvent() {
             />
           </label>
 
-          <label>
+          <label className="grid gap-2 text-amber-50">
             Event time
             <input
               type="time"
@@ -116,7 +119,7 @@ function CreateEvent() {
             />
           </label>
 
-          <label>
+          <label className="grid gap-2 text-amber-50">
             External link
             <input
               type="url"
@@ -130,10 +133,18 @@ function CreateEvent() {
 
         <input type="hidden" name="collegeId" value={formData.collegeId} readOnly />
 
-        {error ? <p className="form-error">{error}</p> : null}
+        {error ? (
+          <p className="m-0 p-4 rounded-2xl border border-orange-400/30 bg-orange-400/10 text-orange-100">
+            {error}
+          </p>
+        ) : null}
 
-        <div className="editor-actions">
-          <button type="submit" className="solid-button" disabled={submitting}>
+        <div className="flex flex-wrap gap-3 mt-6">
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center rounded-full py-3 px-4 transition-transform duration-150 ease-out border border-transparent font-bold bg-gradient-to-br from-orange-400 to-amber-300 text-[#1b1d22] hover:-translate-y-px disabled:opacity-70 disabled:cursor-default disabled:translate-y-0"
+            disabled={submitting}
+          >
             {submitting ? "Publishing..." : "Publish event"}
           </button>
         </div>

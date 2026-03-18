@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../services/api";
 
 function normalizeEvents(payload) {
@@ -14,56 +15,45 @@ function normalizeEvents(payload) {
   return [];
 }
 
+async function fetchEvents(path, signal) {
+  const response = await api.get(path, { signal });
+  return normalizeEvents(response.data);
+}
+
 function useEventsFeed(path) {
-  const [events, setEvents] = useState([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    let active = true;
+  const {
+    data: events = [],
+    isLoading: loading,
+    error: queryError,
+  } = useQuery({
+    queryKey: ["events", path],
+    queryFn: ({ signal }) => fetchEvents(path, signal),
+    staleTime: 30000,
+    retry: 1,
+  });
 
-    async function loadEvents() {
-      setLoading(true);
-      setError("");
-      try {
-        const response = await api.get(path);
-        if (!active) {
-          return;
-        }
-        setEvents(normalizeEvents(response.data));
-      } catch (requestError) {
-        if (!active) {
-          return;
-        }
-        setError(
-          requestError.response?.data?.message || "Unable to load events right now.",
+  const error = queryError
+    ? queryError.response?.data?.message || "Unable to load events right now."
+    : "";
+
+  const applyLikeDelta = useCallback(
+    (eventId, delta) => {
+      queryClient.setQueryData(["events", path], (current) => {
+        if (!Array.isArray(current)) return current;
+        return current.map((event) =>
+          event._id === eventId
+            ? {
+                ...event,
+                likesCount: Math.max(0, (event.likesCount ?? 0) + delta),
+              }
+            : event
         );
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadEvents();
-
-    return () => {
-      active = false;
-    };
-  }, [path]);
-
-  function applyLikeDelta(eventId, delta) {
-    setEvents((current) =>
-      current.map((event) =>
-        event._id === eventId
-          ? {
-              ...event,
-              likesCount: Math.max(0, (event.likesCount ?? 0) + delta),
-            }
-          : event,
-      ),
-    );
-  }
+      });
+    },
+    [queryClient, path]
+  );
 
   return { applyLikeDelta, error, events, loading };
 }

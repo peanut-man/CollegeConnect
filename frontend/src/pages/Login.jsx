@@ -30,21 +30,30 @@ function Login() {
   }
 
   return (
-    <section className="auth-layout">
-      <div className="auth-visual">
-        <p className="eyebrow">Welcome back</p>
-        <h1>Step into the live campus feed.</h1>
-        <p>
+    <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="p-5 md:p-8 rounded-2xl border border-white/10 bg-[var(--color-panel)] shadow-[var(--shadow-panel)]">
+        <p className="m-0 mb-2 uppercase text-xs tracking-widest text-[var(--color-accent-cool)]">
+          Welcome back
+        </p>
+        <h1 className="m-0 text-[clamp(2.5rem,5vw,4.75rem)] leading-[0.98] tracking-tight">
+          Step into the live campus feed.
+        </h1>
+        <p className="max-w-prose text-[var(--color-muted)]">
           Log in to access your college-specific boards, nearby events, and
           likes.
         </p>
       </div>
 
-      <form className="auth-card" onSubmit={handleSubmit}>
-        <h2>Log in</h2>
-        <p>Use your college account details to continue.</p>
+      <form
+        className="grid gap-4 p-5 md:p-8 rounded-2xl border border-white/10 bg-[var(--color-panel)] shadow-[var(--shadow-panel)]"
+        onSubmit={handleSubmit}
+      >
+        <h2 className="m-0 text-3xl">Log in</h2>
+        <p className="m-0 text-[var(--color-muted)]">
+          Use your college account details to continue.
+        </p>
 
-        <label>
+        <label className="grid gap-2 text-amber-50">
           Email
           <input
             type="email"
@@ -55,7 +64,7 @@ function Login() {
           />
         </label>
 
-        <label>
+        <label className="grid gap-2 text-amber-50">
           Password
           <input
             type="password"
@@ -66,17 +75,21 @@ function Login() {
           />
         </label>
 
-        {error ? <p className="form-error">{error}</p> : null}
+        {error ? (
+          <p className="m-0 p-4 rounded-2xl border border-orange-400/30 bg-orange-400/10 text-orange-100">
+            {error}
+          </p>
+        ) : null}
 
         <button
           type="submit"
-          className="solid-button wide-button"
+          className="w-full inline-flex items-center justify-center rounded-full py-3 px-4 transition-transform duration-150 ease-out border border-transparent font-bold bg-gradient-to-br from-orange-400 to-amber-300 text-[#1b1d22] hover:-translate-y-px disabled:opacity-70 disabled:cursor-default disabled:translate-y-0"
           disabled={submitting}
         >
           {submitting ? "Logging in..." : "Log in"}
         </button>
 
-        <p className="form-footnote">
+        <p className="text-[var(--color-muted)]">
           Need an account? <Link to="/signup">Create one here.</Link>
         </p>
       </form>

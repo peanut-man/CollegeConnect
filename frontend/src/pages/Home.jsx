@@ -11,30 +11,43 @@ function Home() {
   const highlights = events.slice(0, 3);
 
   return (
-    <div className="page-stack">
+    <div className="grid gap-6">
       <Hero />
       <PageIntro
         eyebrow="This week"
         title="Fresh campus activity"
         text="A focused preview of newly published events so students can spot what is moving across nearby communities."
         actions={
-          <Link className="ghost-button" to="/events">
+          <Link
+            className="inline-flex items-center justify-center rounded-full py-3 px-4 transition-transform duration-150 ease-out border border-white/10 bg-white/5 hover:-translate-y-px"
+            to="/events"
+          >
             See full calendar
           </Link>
         }
       />
 
       {loading ? (
-        <section className="state-panel">
-          <p className="eyebrow">Loading</p>
-          <h1>Gathering the latest campus events</h1>
-          <p>We are pulling live data from the backend now.</p>
+        <section className="p-6 rounded-2xl border border-white/10 bg-[var(--color-panel)] shadow-[var(--shadow-panel)]">
+          <p className="m-0 mb-2 uppercase text-xs tracking-widest text-[var(--color-accent-cool)]">
+            Loading
+          </p>
+          <h1 className="m-0 text-[clamp(2.5rem,5vw,4.75rem)] leading-[0.98] tracking-tight">
+            Gathering the latest campus events
+          </h1>
+          <p className="max-w-prose text-[var(--color-muted)]">
+            We are pulling live data from the backend now.
+          </p>
         </section>
       ) : error ? (
-        <section className="state-panel">
-          <p className="eyebrow">Feed unavailable</p>
-          <h1>We could not load the homepage events.</h1>
-          <p>{error}</p>
+        <section className="p-6 rounded-2xl border border-white/10 bg-[var(--color-panel)] shadow-[var(--shadow-panel)]">
+          <p className="m-0 mb-2 uppercase text-xs tracking-widest text-[var(--color-accent-cool)]">
+            Feed unavailable
+          </p>
+          <h1 className="m-0 text-[clamp(2.5rem,5vw,4.75rem)] leading-[0.98] tracking-tight">
+            We could not load the homepage events.
+          </h1>
+          <p className="max-w-prose text-[var(--color-muted)]">{error}</p>
         </section>
       ) : (
         <EventGrid
