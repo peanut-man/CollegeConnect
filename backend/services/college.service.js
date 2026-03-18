@@ -10,6 +10,10 @@ module.exports.createCollege = async (collegeData) => {
       state,
       latitude,
       longitude,
+      location: {
+        type: "Point",
+        coordinates: [longitude, latitude], // GeoJSON: [lng, lat]
+      },
     });
     return college;
   } catch (error) {

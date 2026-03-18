@@ -9,6 +9,7 @@ const collegeRoutes = require('./routes/college.routes');
 const eventRoutes = require('./routes/event.routes');
 const likeRoutes = require('./routes/like.routes');
 const errorHandler = require('./middlewares/error.middleware');
+const { generalLimiter } = require('./middlewares/rateLimit.middleware');
 const connectToDb = require('./config/db');
 connectToDb();
 
@@ -37,6 +38,9 @@ app.use(express.urlencoded({extended: true}));
 app.get('/', (req, res)=>{
     res.send("hello");
 })
+
+// Apply general rate limiting to all API routes
+app.use('/api', generalLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/colleges', collegeRoutes);

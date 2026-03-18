@@ -18,11 +18,13 @@ module.exports.createEvent = async (req, res, next) => {
 // GET ALL EVENTS
 module.exports.getAllEvents = async (req, res, next) => {
   try {
-    const events = await eventService.getAllEvents();
+    const { page, limit } = req.query;
+    const result = await eventService.getAllEvents({ page, limit });
 
     res.status(200).json({
       success: true,
-      data: events,
+      data: result.events,
+      pagination: result.pagination,
     });
   } catch (error) {
     next(error);

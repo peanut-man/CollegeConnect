@@ -3,18 +3,28 @@ const collegeModel = require("../models/college.model");
 const mongoose = require("mongoose");
 
 exports.signupValidation = [
-  body("name").notEmpty().withMessage("name is required."),
-  body("email").isEmail().withMessage("Invalid email."),
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("name is required.")
+    .escape(),
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("Invalid email.")
+    .normalizeEmail(),
   body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be atleast 6 characters."),
   body("role")
+    .trim()
     .notEmpty()
     .withMessage("role is required")
     .bail()
     .isIn(["Student", "Organizer"])
     .withMessage("role not allowed"),
   body("collegeId")
+    .trim()
     .notEmpty()
     .withMessage("collegeId is required")
     .custom((value) => mongoose.Types.ObjectId.isValid(value))
@@ -29,7 +39,11 @@ exports.signupValidation = [
 ];
 
 exports.loginValidation = [
-  body("email").isEmail().withMessage("Invalid email."),
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("Invalid email.")
+    .normalizeEmail(),
   body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be atleast 6 characters."),

@@ -1,11 +1,13 @@
 const authService = require("../services/auth.service");
 
+const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+
 function getAuthCookieOptions() {
   return {
     httpOnly: true,
     sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: TOKEN_EXPIRY_MS,
   };
 }
 

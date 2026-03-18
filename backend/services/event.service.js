@@ -1,6 +1,5 @@
 const eventModel = require("../models/event.model");
 const collegeModel = require("../models/college.model");
-const { getDistanceFromLatLonInKm } = require("../utils/geo");
 const AppError = require("../utils/appError");
 
 module.exports.createEvent = async (eventData, user) => {
@@ -19,9 +18,29 @@ module.exports.createEvent = async (eventData, user) => {
   return event;
 };
 
-module.exports.getAllEvents = async () => {
-  const events = await eventModel.find({ isActive: true });
-  return events;
+module.exports.getAllEvents = async (options = {}) => {
+  const page = Math.max(1, parseInt(options.page) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(options.limit) || 10));
+  const skip = (page - 1) * limit;
+
+  const [events, total] = await Promise.all([
+    eventModel
+      .find({ isActive: true })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    eventModel.countDocuments({ isActive: true }),
+  ]);
+
+  return {
+    events,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 module.exports.getEventById = async (eventId) => {
@@ -102,31 +121,40 @@ module.exports.getTrendingEvents = async () => {
 };
 
 module.exports.getNearbyEvents = async (collegeId) => {
-  //fetch latitude/longitude of user's college
+  // Fetch user's college to get coordinates
   const college = await collegeModel.findById(collegeId);
   if (!college) {
     throw new AppError("College not found", 404);
   }
-  const { latitude, longitude } = college; 
 
-  //fetch all colleges
-  const allColleges = await collegeModel.find({});
+  // Use $geoNear aggregation to find colleges within 50km
+  const nearbyColleges = await collegeModel.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [college.longitude, college.latitude],
+        },
+        distanceField: "distance",
+        maxDistance: 50000, // 50 km in meters
+        spherical: true,
+      },
+    },
+    {
+      $project: { _id: 1 },
+    },
+  ]);
 
-  //filter colleges within certain radius
-  const nearbyColleges = allColleges.filter(college => {
-    const distance = getDistanceFromLatLonInKm(
-      latitude,
-      longitude,
-      college.latitude,
-      college.longitude
-    );
-    return distance <= 50; // e.g., within 50 km radius
-  });
+  const nearbyCollegeIds = nearbyColleges.map((c) => c._id);
 
-  const nearbyCollegeIds = nearbyColleges.map(college => college._id);
-  const events = await eventModel.find({ 
-    collegeId: { $in: nearbyCollegeIds },
-    isActive: true 
-  }).select("-collegeId").sort({ createdAt: -1 });
+  // Fetch events from nearby colleges
+  const events = await eventModel
+    .find({
+      collegeId: { $in: nearbyCollegeIds },
+      isActive: true,
+    })
+    .select("-collegeId")
+    .sort({ createdAt: -1 });
+
   return events;
 };
