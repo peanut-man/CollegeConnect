@@ -1,6 +1,20 @@
 const eventModel = require("../models/event.model");
 const collegeModel = require("../models/college.model");
 const AppError = require("../utils/appError");
+const redisClient = require("../config/redis");
+
+const TRENDING_CACHE_KEY = "trending_events";
+const TRENDING_CACHE_TTL = 60; // seconds
+
+module.exports.invalidateTrendingCache = async () => {
+  try {
+    if (redisClient.isReady) {
+      await redisClient.del(TRENDING_CACHE_KEY);
+    }
+  } catch (err) {
+    console.error("Redis cache invalidation error:", err.message);
+  }
+};
 
 module.exports.createEvent = async (eventData, user) => {
   const { title, description, category, eventDate, eventTime, externalLink } =
@@ -111,12 +125,36 @@ module.exports.getEventByCollegeId = async (collegeId) => {
 };
 
 module.exports.getTrendingEvents = async () => {
-  // Fetch events sorted by likesCount and createdAt in descending order, limit to top 10
+  // Try to get from Redis cache first
+  try {
+    if (redisClient.isReady) {
+      const cached = await redisClient.get(TRENDING_CACHE_KEY);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
+  } catch (err) {
+    console.error("Redis get error:", err.message);
+  }
+
+  // Fetch from MongoDB if cache miss or Redis unavailable
   const events = await eventModel
     .find({ isActive: true })
     .select("-collegeId")
     .sort({ likesCount: -1, createdAt: -1 })
     .limit(10);
+
+  // Store in Redis cache
+  try {
+    if (redisClient.isReady) {
+      await redisClient.set(TRENDING_CACHE_KEY, JSON.stringify(events), {
+        EX: TRENDING_CACHE_TTL,
+      });
+    }
+  } catch (err) {
+    console.error("Redis set error:", err.message);
+  }
+
   return events;
 };
 

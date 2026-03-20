@@ -1,6 +1,7 @@
 const eventModel = require("../models/event.model");
 const likeModel = require("../models/like.model");
 const AppError = require("../utils/appError");
+const { invalidateTrendingCache } = require("./event.service");
 
 //like event
 module.exports.likeEvent = async (eventId, user) => {
@@ -26,6 +27,9 @@ module.exports.likeEvent = async (eventId, user) => {
   // Increase likesCount in event document
   await eventModel.updateOne({ _id: eventId }, { $inc: { likesCount: 1 } });
 
+  // Invalidate trending events cache
+  await invalidateTrendingCache();
+
   return like;
 };
 
@@ -48,6 +52,9 @@ module.exports.unlikeEvent = async (eventId, user) => {
     { _id: eventId, likesCount: { $gt: 0 } },
     { $inc: { likesCount: -1 } },
   );
+
+  // Invalidate trending events cache
+  await invalidateTrendingCache();
 
   return { message: "Event unliked successfully" };
 };
