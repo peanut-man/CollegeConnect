@@ -1,757 +1,405 @@
-# College Connect — Backend Documentation
+# College Connect Backend Documentation
 
-## Table of Contents
+## Overview
 
-1. [Overview](#1-overview)
-2. [Tech Stack & Dependencies](#2-tech-stack--dependencies)
-3. [Project Structure](#3-project-structure)
-4. [Entry Points](#4-entry-points)
-5. [Database & Config](#5-database--config)
-6. [Models](#6-models)
-7. [Routes](#7-routes)
-8. [Controllers](#8-controllers)
-9. [Services](#9-services)
-10. [Middlewares](#10-middlewares)
-11. [Validations](#11-validations)
-12. [Utilities](#12-utilities)
-13. [Scripts](#13-scripts)
-14. [Authentication Flow](#14-authentication-flow)
-15. [Data Flow by Feature](#15-data-flow-by-feature)
-16. [Error Handling](#16-error-handling)
-17. [Environment Variables](#17-environment-variables)
+The backend is a CommonJS Node.js API built around Express-style route modules, Mongoose models, Redis, BullMQ, and cookie-based JWT auth. It exposes four live API domains under `/api`:
 
----
+- auth
+- colleges
+- events
+- likes
 
-## 1. Overview
+In addition to the API server, the repo includes a separate BullMQ worker process for event-notification emails.
 
-College Connect is a campus event platform. The backend is a Node.js/Express REST API that exposes four domains: **auth**, **colleges**, **events**, and **likes**. All state is persisted in MongoDB via Mongoose. Authentication is cookie-based (HttpOnly JWT). The API is consumed exclusively by the React frontend.
+## Tech Stack
 
----
+| Area | Package(s) | Notes |
+| --- | --- | --- |
+| Runtime | Node.js, CommonJS | `server.js` starts the HTTP server |
+| Database | `mongoose` | MongoDB persistence |
+| Auth | `jsonwebtoken`, `bcrypt`, `cookie-parser` | JWT stored in `token` cookie |
+| Validation | `express-validator` | Used on signup, login, create-college, create-event |
+| Security/control | `cors`, `express-rate-limit` | CORS allowlist plus per-route/global throttling |
+| Queue/cache | `bullmq`, `ioredis`, `redis` | BullMQ for jobs, Redis cache for trending feed |
+| Email | `nodemailer` | Event notification emails |
 
-## 2. Tech Stack & Dependencies
+## Scripts
 
-| Package | Version | Purpose |
-|---|---|---|
-| `express` | (peer) | HTTP server framework |
-| `mongoose` | ^9.1.3 | MongoDB ODM |
-| `jsonwebtoken` | ^9.0.3 | Create and verify JWTs |
-| `bcrypt` | ^6.0.0 | Password hashing (10 salt rounds) |
-| `cookie-parser` | ^1.4.7 | Parse `Cookie` header into `req.cookies` |
-| `cors` | ^2.8.5 | Cross-origin resource sharing |
-| `dotenv` | ^17.2.3 | Load `.env` into `process.env` |
-| `express-validator` | ^7.3.1 | Request body validation via chainable rules |
+| Command | Purpose |
+| --- | --- |
+| `npm start` | Start the API server with Node |
+| `npm run dev` | Start the API server with Nodemon |
 
-**Scripts:**
+There is currently no npm script for the BullMQ worker. Run it manually with:
 
-| Command | Action |
-|---|---|
-| `npm start` | `node server.js` |
-| `npm run dev` | `npx nodemon server.js` |
-
----
-
-## 3. Project Structure
-
+```bash
+node workers/notification.worker.js
 ```
+
+## Process Model
+
+There are two runtime processes in the repo:
+
+1. API server: `backend/server.js`
+2. Notification worker: `backend/workers/notification.worker.js`
+
+The worker is not started automatically by the API server. If Redis/SMTP notifications matter in a local or deployed environment, the worker must be launched separately.
+
+## High-Level Structure
+
+```text
 backend/
-├── app.js                  # Express app setup, middleware registration, route mounting
-├── server.js               # HTTP server creation and port binding
-├── config/
-│   └── db.js               # MongoDB connection via Mongoose
-├── constants/              # (directory exists; no files currently used)
-├── controllers/
-│   ├── auth.controller.js
-│   ├── college.controller.js
-│   ├── event.controller.js
-│   └── like.controller.js
-├── middlewares/
-│   ├── auth.middleware.js   # JWT cookie verification (enforced + optional variants)
-│   ├── error.middleware.js  # Centralized Express error handler
-│   ├── role.middleware.js   # Role-based access control
-│   └── validate.middleware.js # express-validator result consumer
-├── models/
-│   ├── college.model.js
-│   ├── event.model.js
-│   ├── like.model.js
-│   └── user.model.js
-├── routes/
-│   ├── auth.routes.js
-│   ├── college.routes.js
-│   ├── event.routes.js
-│   └── like.routes.js
-├── scripts/
-│   └── createAdmin.js      # One-time admin seed script
-├── services/
-│   ├── auth.service.js
-│   ├── college.service.js
-│   ├── event.service.js
-│   └── like.service.js
-├── utils/
-│   ├── appError.js         # Custom operational error class
-│   └── geo.js              # Haversine distance formula
-└── validations/
-    ├── auth.validations.js
-    ├── college.validations.js
-    └── event.validations.js
+|-- app.js
+|-- server.js
+|-- config/
+|   |-- db.js
+|   |-- redis.js
+|   `-- bullmq.redis.js
+|-- controllers/
+|   |-- auth.controller.js
+|   |-- college.controller.js
+|   |-- event.controller.js
+|   `-- like.controller.js
+|-- middlewares/
+|   |-- auth.middleware.js
+|   |-- role.middleware.js
+|   |-- validate.middleware.js
+|   |-- rateLimit.middleware.js
+|   `-- error.middleware.js
+|-- models/
+|   |-- user.model.js
+|   |-- college.model.js
+|   |-- event.model.js
+|   `-- like.model.js
+|-- routes/
+|   |-- auth.routes.js
+|   |-- college.routes.js
+|   |-- event.routes.js
+|   `-- like.routes.js
+|-- services/
+|   |-- auth.service.js
+|   |-- college.service.js
+|   |-- event.service.js
+|   |-- like.service.js
+|   `-- email.service.js
+|-- queues/
+|   `-- notification.queue.js
+|-- workers/
+|   `-- notification.worker.js
+|-- validations/
+|   |-- auth.validations.js
+|   |-- college.validations.js
+|   `-- event.validations.js
+|-- scripts/
+|   |-- createAdmin.js
+|   |-- seedColleges.js
+|   `-- seedUsersAndEvents.js
+`-- data/
+    `-- colleges.json
 ```
 
----
+## App Bootstrap
+
+`app.js` performs startup in this order:
 
-## 4. Entry Points
+1. Load environment variables with `dotenv.config()`
+2. Connect to MongoDB with `connectToDb()`
+3. Build the CORS allowlist from `FRONTEND_URL`, `http://localhost:5173`, and `http://localhost:5174`
+4. Register `cors` with credentials enabled
+5. Register `cookie-parser`
+6. Register `express.json()` and `express.urlencoded({ extended: true })`
+7. Expose `GET /` health-style response returning `"hello"`
+8. Apply the general API rate limiter to `/api`
+9. Mount `/api/auth`, `/api/colleges`, `/api/events`, and `/api/likes`
+10. Register the centralized error handler
 
-### `app.js`
+`server.js` then creates the HTTP server, listens on `process.env.PORT`, and exits on `EADDRINUSE`.
 
-Sets up the entire Express application in this order:
+## Environment Variables
 
-1. Loads `dotenv` (environment variables available before any other require).
-2. Imports and calls `connectToDb()` — DB connection is established on module load.
-3. Builds `allowedOrigins` from `[process.env.FRONTEND_URL, 'http://localhost:5173', 'http://localhost:5174']` (falsy values filtered out).
-4. Registers global middleware:
-   - `cors({ origin: allowedOrigins, credentials: true })` — allows cookies cross-origin
-   - `cookie-parser`
-   - `express.json()`
-   - `express.urlencoded({ extended: true })`
-5. Health-check: `GET /` returns `"hello"`.
-6. Mounts routers:
-   - `/api/auth` → auth routes
-   - `/api/colleges` → college routes
-   - `/api/events` → event routes
-   - `/api/likes` → like routes
-7. Registers `errorHandler` as the final middleware (catches all errors forwarded by `next(err)`).
+The current backend `.env` uses these keys:
 
-### `server.js`
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | API server port |
+| `MONGODB_URI` | MongoDB connection string |
+| `JWT_SECRET_KEY` | JWT signing secret |
+| `TOKEN_EXPIRY` | JWT expiry used by `generateAuthToken()` |
+| `ADMIN_EMAIL` | Bootstrap admin email for `createAdmin.js` |
+| `ADMIN_PASSWORD` | Bootstrap admin password for `createAdmin.js` |
+| `REDIS_URL` | Redis connection for cache and BullMQ |
+| `SMTP_HOST` | SMTP host |
+| `SMTP_PORT` | SMTP port |
+| `SMTP_SECURE` | Whether SMTP should use a secure transport |
+| `SMTP_USER` | SMTP username |
+| `SMTP_PASS` | SMTP password |
+| `SMTP_FROM` | Optional sender address override |
 
-Thin wrapper around `app`. Creates a native `http.Server`, reads `PORT` from env, calls `server.listen(port)`. On `EADDRINUSE` error it logs and exits with code 1.
+Optional but referenced:
 
----
+| Variable | Purpose |
+| --- | --- |
+| `FRONTEND_URL` | Additional allowed CORS origin |
+| `NODE_ENV` | Controls cookie `secure` flag and logging behavior |
 
-## 5. Database & Config
+## Data Model
 
-### `config/db.js`
+### `User`
 
-```
-mongoose.connect(process.env.MONGODB_URI)
-```
+Fields:
 
-- Logs `"Connected to database."` on success.
-- Calls `process.exit(1)` on failure — the process cannot run without a DB connection.
-- No explicit connection pool settings; Mongoose defaults apply.
+- `name`
+- `email` (unique)
+- `password` (`select: false`)
+- `role` in `Student | Organizer | Admin`
+- `collegeId` (optional ObjectId ref)
+- timestamps
 
----
+Model behavior:
 
-## 6. Models
+- `generateAuthToken()` signs `{ userId }` with `JWT_SECRET_KEY`
+- `hashPassword()` wraps `bcrypt.hash(..., 10)`
+- `comparePassword()` wraps `bcrypt.compare(...)`
 
-### `user.model.js`
+### `College`
 
-**Collection:** `users`
+Fields:
 
-| Field | Type | Rules |
-|---|---|---|
-| `name` | String | required |
-| `email` | String | required, unique |
-| `password` | String | required, `select: false`, minlength 6 |
-| `role` | String | required, enum: `Student \| Organizer \| Admin` |
-| `collegeId` | ObjectId → `'college'` | optional |
-| `createdAt/updatedAt` | Date | auto (`timestamps: true`) |
+- `name`
+- `city`
+- `state`
+- `latitude`
+- `longitude`
+- `location` as GeoJSON Point
+- timestamps
 
-**Instance methods:**
+Indexes:
 
-| Method | Behaviour |
-|---|---|
-| `generateAuthToken()` | Signs `{ userId: this._id }` with `JWT_SECRET_KEY`, expiry from `TOKEN_EXPIRY`. Returns the token string. |
-| `comparePassword(plain)` | `bcrypt.compare(plain, this.password)`. Returns boolean promise. |
+- unique index on `name`
+- `2dsphere` index on `location`
 
-**Static methods:**
+### `Event`
 
-| Method | Behaviour |
-|---|---|
-| `hashPassword(plain)` | `bcrypt.hash(plain, 10)`. Returns hashed string promise. |
+Fields:
 
-> `password` has `select: false` — must use `.select('+password')` to retrieve it.
+- `title`
+- `description`
+- `category`
+- `eventDate`
+- `eventTime`
+- `collegeId`
+- `organizerId`
+- `externalLink`
+- `likesCount`
+- `isActive`
+- timestamps
 
----
+Indexes:
 
-### `college.model.js`
+- `{ isActive: 1, likesCount: -1, createdAt: -1 }`
+- `{ collegeId: 1, isActive: 1, createdAt: -1 }`
 
-**Collection:** `colleges`
+The app uses soft delete by setting `isActive: false`.
 
-| Field | Type | Rules |
-|---|---|---|
-| `name` | String | required |
-| `city` | String | required |
-| `state` | String | required |
-| `latitude` | Number | required |
-| `longitude` | Number | required |
-| `createdAt/updatedAt` | Date | auto |
+### `Like`
 
-No indexes beyond `_id`. No methods or hooks.
+Fields:
 
----
+- `userId`
+- `eventId`
+- timestamps
 
-### `event.model.js`
+Index:
 
-**Collection:** `events`
+- unique compound index on `{ userId, eventId }`
 
-| Field | Type | Rules |
-|---|---|---|
-| `title` | String | required, trim |
-| `description` | String | required |
-| `category` | String | required, enum: `Hackathon \| Seminar \| Fest \| Workshop \| Other` |
-| `eventDate` | Date | required |
-| `eventTime` | String | required |
-| `collegeId` | ObjectId → `'College'` | required |
-| `organizerId` | ObjectId → `'User'` | required |
-| `externalLink` | String | optional |
-| `likesCount` | Number | default: `0` |
-| `isActive` | Boolean | default: `true` |
-| `createdAt/updatedAt` | Date | auto |
+## Auth and Authorization
 
-**Compound indexes:**
+### Cookie Session Flow
 
-| Index | Purpose |
-|---|---|
-| `{ isActive: 1, likesCount: -1, createdAt: -1 }` | Trending queries |
-| `{ collegeId: 1, isActive: 1, createdAt: -1 }` | College-scoped feed queries |
+- Signup and login generate a JWT and store it in an `httpOnly` cookie named `token`.
+- Cookie options use `sameSite: "strict"` and `secure: process.env.NODE_ENV === "production"`.
+- The cookie max age is currently hardcoded to 24 hours.
+- Protected routes load the user from `req.cookies.token`.
 
-Events are **soft-deleted** (`isActive: false`) rather than removed from the collection.
+### Auth Middleware
 
----
+- `getUser` requires a valid auth cookie and sets `req.user`
+- `getOptionalUser` tries to load a user but falls back to `req.user = null`
 
-### `like.model.js`
+### Role Rules
 
-**Collection:** `likes`
+- Public signup only allows `Student` and `Organizer`
+- `Admin` accounts cannot be created through public signup
+- `role.middleware.js` gates admin-only and organizer/admin endpoints
 
-| Field | Type |
-|---|---|
-| `userId` | ObjectId → `'User'` |
-| `eventId` | ObjectId → `'Event'` |
-| `createdAt/updatedAt` | Date (auto) |
+## Routing
 
-**Unique compound index:** `{ userId: 1, eventId: 1 }` — enforces one like per user per event at the database level.
+### Auth Routes
 
----
+Mounted at `/api/auth`
 
-## 7. Routes
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/me` | Returns `{ user: req.user ?? null }` |
+| `POST` | `/signup` | Rate limited, validated, sets auth cookie |
+| `POST` | `/login` | Rate limited, validated, sets auth cookie |
+| `POST` | `/logout` | Requires auth, clears cookie |
 
-All routes are prefixed with `/api`.
+### College Routes
 
-### Auth — `/api/auth`
+Mounted at `/api/colleges`
 
-| Method | Path | Middleware | Controller |
-|---|---|---|---|
-| GET | `/me` | `getOptionalUser` | `getUser` |
-| POST | `/signup` | `signupValidation`, `validateMiddleware` | `signUpUser` |
-| POST | `/login` | `loginValidation`, `validateMiddleware` | `loginUser` |
-| POST | `/logout` | `getUser` (enforced) | `logoutUser` |
+| Method | Path | Notes |
+| --- | --- | --- |
+| `POST` | `/` | Admin-only create |
+| `GET` | `/search` | Public name search, returns `_id` and `name` |
+| `GET` | `/` | Public list of all colleges |
 
-### Colleges — `/api/colleges`
+### Event Routes
 
-| Method | Path | Middleware | Controller |
-|---|---|---|---|
-| POST | `/` | `getUser`, `createCollegeValidation`, `validateMiddleware`, `requireRole("Admin")` | `createCollege` |
-| GET | `/` | — | `getAllColleges` |
+Mounted at `/api/events`
 
-### Events — `/api/events`
+| Method | Path | Notes |
+| --- | --- | --- |
+| `POST` | `/` | Authenticated `Admin`/`Organizer` create |
+| `GET` | `/` | Paginated active events |
+| `GET` | `/my-college` | Authenticated college-scoped events |
+| `GET` | `/trending` | Cached top events |
+| `GET` | `/nearby` | Authenticated geospatial nearby events |
+| `GET` | `/:eventId` | Active event details |
+| `PUT` | `/:eventId` | Organizer or admin update |
+| `DELETE` | `/:eventId` | Organizer or admin soft delete |
 
-| Method | Path | Middleware | Controller |
-|---|---|---|---|
-| POST | `/` | `getUser`, `requireRole("Admin","Organizer")`, `createEventValidation`, `validateMiddleware` | `createEvent` |
-| GET | `/` | — | `getAllEvents` |
-| GET | `/my-college` | `getUser` | `getEventByCollegeId` |
-| GET | `/trending` | — | `getTrendingEvents` |
-| GET | `/nearby` | `getUser` | `getNearbyEvents` |
-| GET | `/:eventId` | — | `getEventById` |
-| PUT | `/:eventId` | `getUser`, `requireRole("Admin","Organizer")` | `updateEventById` |
-| DELETE | `/:eventId` | `getUser`, `requireRole("Admin","Organizer")` | `deleteEventById` |
+### Like Routes
 
-> Literal paths (`/my-college`, `/trending`, `/nearby`) are registered before `/:eventId` to prevent the param route from matching them.
+Mounted at `/api/likes`
 
-### Likes — `/api/likes`
+| Method | Path | Notes |
+| --- | --- | --- |
+| `POST` | `/:eventId/like` | Authenticated like |
+| `DELETE` | `/:eventId/like` | Authenticated unlike |
 
-| Method | Path | Middleware | Controller |
-|---|---|---|---|
-| POST | `/:eventId/like` | `getUser` | `likeEvent` |
-| DELETE | `/:eventId/like` | `getUser` | `unlikeEvent` |
-
----
-
-## 8. Controllers
-
-Controllers handle only HTTP concerns: read from `req`, call a service, set cookies/headers, send responses, and forward errors to `next`.
-
-### `auth.controller.js`
-
-**Helper `getAuthCookieOptions()`** — returns:
-```js
-{ httpOnly: true, sameSite: "strict", secure: (NODE_ENV === "production"), maxAge: 604800000 }
-```
-(7 days, in milliseconds)
-
-| Function | Behaviour |
-|---|---|
-| `signUpUser` | Calls `authService.createUser(req.body)` → generates token → sets cookie → `201 { user }` |
-| `loginUser` | Calls `authService.loginUser(req.body)` → generates token → sets cookie → `200 { user }` |
-| `getUser` | Returns `req.user ?? null` as `200 { user }` (populated upstream by `getOptionalUser`) |
-| `logoutUser` | Clears `token` cookie → `200 { message: "Logged out successfully" }` |
-
-### `college.controller.js`
-
-| Function | Behaviour |
-|---|---|
-| `createCollege` | Calls `collegeService.createCollege(req.body)` → `201 { success: true, data: college }` |
-| `getAllColleges` | Calls `collegeModel.find({})` directly → `200 { success: true, data: colleges }` |
-
-### `event.controller.js`
-
-| Function | Behaviour |
-|---|---|
-| `createEvent` | Calls `eventService.createEvent(req.body, req.user)` → `201 { success, data }` |
-| `getAllEvents` | Calls `eventService.getAllEvents()` → `200 { success, data }` |
-| `getEventById` | Calls `eventService.getEventById(req.params.eventId)` → `200 { success, data }` |
-| `updateEventById` | Calls `eventService.updateEventById(eventId, req.body, req.user)` → `200 { success, data }` |
-| `deleteEventById` | Calls `eventService.deleteEventById(eventId, req.user)` → `200 { success, data }` |
-| `getEventByCollegeId` | Guards `req.user.collegeId` presence, calls service → `200 { success, data }` |
-| `getTrendingEvents` | Calls `eventService.getTrendingEvents()` → `200 { success, data }` |
-| `getNearbyEvents` | Guards `req.user.collegeId` presence, calls service → `200 { success, data }` |
-
-### `like.controller.js`
-
-| Function | Behaviour |
-|---|---|
-| `likeEvent` | Calls `likeService.likeEvent(eventId, req.user)` → `200 { success, data: like }` |
-| `unlikeEvent` | Calls `likeService.unlikeEvent(eventId, req.user)` → `200 { success, data }` |
-
----
-
-## 9. Services
-
-Services contain all business logic. They return data or throw `AppError` instances.
+## Services and Business Logic
 
 ### `auth.service.js`
 
-**`createUser(data)`**
-
-1. Throws `AppError(403)` if `role === "Admin"` — Admin accounts cannot be self-registered.
-2. Throws `AppError(403)` if role is not `Student` or `Organizer`.
-3. `userModel.findOne({ email })` — throws `AppError(409)` if email already registered.
-4. Hashes password via `userModel.hashPassword(password)` (bcrypt, 10 rounds).
-5. `userModel.create({ name, email, password: hashed, role, collegeId })`.
-6. Strips `password` from the returned object before returning.
-
-**`loginUser(data)`**
-
-1. `userModel.findOne({ email }).select('+password')` — throws `AppError(401)` with generic message if not found (prevents email enumeration).
-2. `user.comparePassword(password)` — throws `AppError(401)` with same generic message on mismatch.
-3. Strips `password` from user, returns user.
-
----
+- Creates users after checking allowed roles and duplicate email
+- Hashes passwords before insert
+- Verifies credentials for login
 
 ### `college.service.js`
 
-**`createCollege(data)`**
-
-Calls `collegeModel.create({ name, city, state, latitude, longitude })`. Wraps in try/catch and re-throws as `AppError(500)` on failure.
-
----
+- Creates colleges and builds the GeoJSON `location` field
 
 ### `event.service.js`
 
-**`createEvent(eventData, user)`**
-
-Builds the event document sourcing `collegeId` and `organizerId` from `user` — clients cannot supply these fields. Calls `eventModel.create(...)`.
-
-**`getAllEvents()`**
-
-`eventModel.find({ isActive: true })` — no sorting or pagination.
-
-**`getEventById(eventId)`**
-
-`eventModel.findOne({ _id: eventId, isActive: true })`. Throws `AppError(404)` if not found.
-
-**`updateEventById(eventId, updateData, user)`**
-
-1. Finds event; throws `AppError(404)` if missing.
-2. Authorization: throws `AppError(403)` if requester is not the event organizer AND is not an Admin.
-3. `eventModel.findByIdAndUpdate(eventId, updateData, { new: true })`.
-
-**`deleteEventById(eventId, user)`**
-
-1. `eventModel.findById(eventId)` (finds even inactive events). Throws `AppError(404)` if missing.
-2. Same authorization check as update.
-3. Soft-delete: sets `isActive: false`.
-
-**`getEventByCollegeId(collegeId)`**
-
-`eventModel.find({ collegeId, isActive: true })`, projects out `collegeId`, sorts by `createdAt: -1`.
-
-**`getTrendingEvents()`**
-
-`eventModel.find({ isActive: true })`, projects out `collegeId`, sorts by `{ likesCount: -1, createdAt: -1 }`, limits to 10.
-
-**`getNearbyEvents(collegeId)`**
-
-1. Fetches user's college and reads its `latitude` and `longitude`. Throws `AppError(404)` if college missing.
-2. Fetches all colleges from the DB.
-3. Filters in-memory using Haversine formula (from `utils/geo.js`) to colleges within **50 km**.
-4. `eventModel.find({ collegeId: { $in: nearbyCollegeIds }, isActive: true })`, projects out `collegeId`, sorts by `createdAt: -1`.
-
----
+- Creates events tied to `req.user.collegeId` and `req.user._id`
+- Paginates and sorts active events
+- Enforces organizer/admin ownership on update and delete
+- Soft-deletes by setting `isActive: false`
+- Fetches same-college and nearby-college events
+- Caches trending events in Redis for 60 seconds
+- Invalidates the trending cache on like/unlike
+- Enqueues notification emails on event creation
 
 ### `like.service.js`
 
-**`likeEvent(eventId, user)`**
+- Prevents duplicate likes
+- Maintains `Event.likesCount`
+- Invalidates trending cache after like or unlike
 
-1. Verifies event exists and is active. Throws `AppError(404)` if not.
-2. `likeModel.findOne({ userId, eventId })` — throws `AppError(409)` if already liked.
-3. `likeModel.create({ userId, eventId })`.
-4. `eventModel.updateOne({ _id: eventId }, { $inc: { likesCount: 1 } })` — atomic increment.
-5. Returns the new like document.
+## Queueing, Cache, and Email
 
-**`unlikeEvent(eventId, user)`**
+### Redis
 
-1. `likeModel.findOne({ userId, eventId })` — throws `AppError(400)` if like does not exist.
-2. `likeModel.deleteOne({ _id: existingLike._id })`.
-3. `eventModel.updateOne({ _id: eventId, likesCount: { $gt: 0 } }, { $inc: { likesCount: -1 } })` — atomic decrement with a floor guard (prevents going below 0).
-4. Returns `{ message: "Event unliked successfully" }`.
+Two Redis clients are used:
 
----
+- `config/redis.js`: cache operations through the `redis` package
+- `config/bullmq.redis.js`: BullMQ transport through `ioredis`
 
-## 10. Middlewares
+### Trending Cache
 
-### `auth.middleware.js`
+- Cache key: `trending_events`
+- TTL: 60 seconds
+- Read path: `getTrendingEvents()`
+- Invalidation path: `invalidateTrendingCache()`
 
-**Internal helper `loadUserFromCookie(req)`** (not exported):
-- Reads `req.cookies?.token`.
-- Returns `null` if no token.
-- `jwt.verify(token, JWT_SECRET_KEY)` → `userModel.findById(decoded.userId)`.
+### Notification Queue
 
-**`getUser(req, res, next)`** — enforced authentication:
-- Blocks if no cookie → `AppError(401, "Authentication token missing")`.
-- Blocks if user not found in DB → `AppError(401, "User not found")`.
-- Catches JWT errors (expired, malformed) → `AppError(401, "Invalid or expired token")`.
-- Sets `req.user` and calls `next()` on success.
+When an event is created, `event.service.js` adds a `send-event-email` job to the `event-notifications` queue with:
 
-**`getOptionalUser(req, res, next)`** — optional authentication:
-- Calls `loadUserFromCookie`; sets `req.user` to the result (may be `null`).
-- Swallows all errors silently (`req.user = null`). Never blocks the request.
-- Used on `GET /auth/me` so unauthenticated clients still get a `200` response.
+- `eventId`
+- `collegeId`
 
----
+### Notification Worker
 
-### `role.middleware.js`
+`workers/notification.worker.js`:
 
-**`requireRole(...allowedRoles)`** — factory returning a middleware closure:
+- connects to MongoDB
+- starts a BullMQ worker on `event-notifications`
+- fetches the event by `eventId`
+- finds all users in the same college
+- sends one email per user with `email.service.js`
 
-- If `!req.user`: responds directly `401 { message: "Authentication required" }`.
-- If `req.user.role` not in `allowedRoles`: responds `403 { message: "Insufficient permissions", requiredRole, yourRole }`.
-- Otherwise: `next()`.
+## Validation, Errors, and Rate Limits
 
-Accepts variadic arguments, e.g., `requireRole("Admin", "Organizer")`.
+### Validation
 
----
+Validation exists for:
 
-### `validate.middleware.js`
+- signup
+- login
+- create college
+- create event
 
-Reads `validationResult(req)` from `express-validator`. If there are errors, takes the first one and passes `AppError(firstError.msg || "Validation failed", 400)` to `next`. Clears the chain if valid.
+`validate.middleware.js` converts the first validation failure into an `AppError` with status `400`.
 
----
+### Error Format
 
-### `error.middleware.js`
+The centralized error handler returns:
 
-Central 4-argument Express error handler (registered last in `app.js`).
-
-- Reads `err.statusCode` (default `500`) and `err.message` (default `"Internal server error"`).
-- **Development mode:** logs 5xx non-operational errors with full `console.error(err)`; logs 4xx as a one-line warning.
-- **Production mode:** logs only 5xx errors; suppresses 4xx log noise entirely.
-- Always responds `{ success: false, message }` — never exposes stack traces.
-
----
-
-## 11. Validations
-
-All validators use `express-validator`'s `body()` API and are run as a middleware array before `validateMiddleware`.
-
-### Auth Validations (`auth.validations.js`)
-
-**`signupValidation`:**
-
-| Field | Rules |
-|---|---|
-| `name` | `notEmpty` |
-| `email` | `isEmail` |
-| `password` | `isLength({ min: 6 })` |
-| `role` | `notEmpty` → `bail()` → `isIn(["Student", "Organizer"])` |
-| `collegeId` | `notEmpty` → custom ObjectId format check → async DB check (college must exist) |
-
-**`loginValidation`:**
-
-| Field | Rules |
-|---|---|
-| `email` | `isEmail` |
-| `password` | `isLength({ min: 6 })` |
-
-### College Validations (`college.validations.js`)
-
-**`createCollegeValidation`:**
-
-| Field | Rules |
-|---|---|
-| `name` | `notEmpty`, `isString` |
-| `city` | `notEmpty`, `isString` |
-| `state` | `notEmpty`, `isString` |
-| `latitude` | `notEmpty`, `isFloat` |
-| `longitude` | `notEmpty`, `isFloat` |
-
-### Event Validations (`event.validations.js`)
-
-**`createEventValidation`:**
-
-| Field | Rules |
-|---|---|
-| `title` | `notEmpty`, `isString` |
-| `description` | `notEmpty`, `isString` |
-| `category` | `notEmpty`, `isIn(["Hackathon","Seminar","Fest","Workshop","Other"])` |
-| `eventDate` | `notEmpty`, `isISO8601` |
-| `eventTime` | `notEmpty`, `matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)` (HH:MM) |
-| `collegeId` | `notEmpty`, `isMongoId` |
-| `externalLink` | optional, `isURL` |
-
----
-
-## 12. Utilities
-
-### `utils/appError.js`
-
-```js
-class AppError extends Error {
-  constructor(message, statusCode = 500) {
-    super(message);
-    this.statusCode = statusCode;
-    this.isOperational = true;
-    Error.captureStackTrace(this, this.constructor);
-  }
+```json
+{
+  "success": false,
+  "message": "..."
 }
 ```
 
-`isOperational = true` distinguishes expected HTTP errors from unexpected programming errors in the error middleware. Stack trace excludes the `AppError` constructor frame itself.
+### Rate Limits
 
----
+| Limiter | Scope |
+| --- | --- |
+| `loginLimiter` | 5 requests per minute per IP |
+| `signupLimiter` | 3 requests per minute per IP |
+| `generalLimiter` | 100 requests per minute per IP across `/api` |
 
-### `utils/geo.js`
-
-**`getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2)`**
-
-Implements the **Haversine formula** for great-circle distance between two geographic coordinate pairs. Uses Earth radius `R = 6371 km`. Returns distance in km as a float. Pure function with no side effects.
-
-Used by `event.service.js → getNearbyEvents()` to filter colleges within 50 km.
-
----
-
-## 13. Scripts
+## Seeding and Bootstrap Scripts
 
 ### `scripts/createAdmin.js`
 
-Standalone CLI script, not connected to any route or HTTP server.
+- reads `ADMIN_EMAIL` and `ADMIN_PASSWORD`
+- creates a single `Admin` user if one does not already exist
 
-**Run:** `node scripts/createAdmin.js`
+### `scripts/seedColleges.js`
 
-**Flow:**
-1. Loads `.env` from the parent `backend/` directory.
-2. Reads `ADMIN_EMAIL` and `ADMIN_PASSWORD` from env — exits with error if either is missing.
-3. Connects to MongoDB.
-4. `User.findOne({ role: "Admin" })` — if one already exists, logs and exits `0` (idempotent).
-5. Hashes the password and creates `{ name: "System Admin", email, password, role: "Admin" }` — no `collegeId`.
-6. Logs success and exits `0`. On any error, exits `1`.
+- reads `data/colleges.json`
+- ensures the unique `name` index
+- inserts only missing colleges
+- supports batch size via `SEED_BATCH_SIZE`
 
----
+### `scripts/seedUsersAndEvents.js`
 
-## 14. Authentication Flow
+- requires colleges to exist first
+- creates 25 organizer test users
+- creates 100 events
+- uses `password123` for seeded test accounts
 
-```
-Client                          Backend
-  |                                |
-  |  POST /api/auth/signup         |
-  |  { name, email, password,      |
-  |    role, collegeId }           |
-  |------------------------------> |
-  |                                | validateMiddleware (400 if invalid)
-  |                                | authService.createUser()
-  |                                |   - role guard (403)
-  |                                |   - duplicate email check (409)
-  |                                |   - bcrypt hash (10 rounds)
-  |                                |   - userModel.create()
-  |                                | user.generateAuthToken() → JWT
-  |                                | Set-Cookie: token=<JWT>; HttpOnly; SameSite=Strict
-  |  201 { user }                  |
-  |<------------------------------- |
+## Current Implementation Notes
 
-  |  POST /api/auth/login          |
-  |  { email, password }           |
-  |------------------------------> |
-  |                                | validateMiddleware
-  |                                | authService.loginUser()
-  |                                |   - find user + select password
-  |                                |   - bcrypt.compare()  (401 on mismatch)
-  |                                | user.generateAuthToken() → JWT
-  |                                | Set-Cookie: token=<JWT>; HttpOnly
-  |  200 { user }                  |
-  |<------------------------------- |
-
-  |  (any authenticated request)   |
-  |  Cookie: token=<JWT>           |
-  |------------------------------> |
-  |                                | authMiddleware.getUser()
-  |                                |   - jwt.verify()
-  |                                |   - userModel.findById(decoded.userId)
-  |                                |   → req.user = user
-  |                                | (proceed to route handler)
-  |<------------------------------- |
-
-  |  POST /api/auth/logout         |
-  |------------------------------> |
-  |                                | authMiddleware.getUser() (required)
-  |                                | res.clearCookie("token")
-  |  200 { message }               |
-  |<------------------------------- |
-```
-
-**JWT payload:** `{ userId: <ObjectId> }` only. Role and other fields are never stored in the token — they are always loaded fresh from the database via `userModel.findById`.
-
-**Cookie attributes:** `HttpOnly` (not accessible to JS), `SameSite=Strict` (CSRF protection), `Secure` only in production, `maxAge` 7 days.
-
----
-
-## 15. Data Flow by Feature
-
-### Signup
-
-```
-POST /api/auth/signup
-  → signupValidation[]     (express-validator checks all fields; async DB check on collegeId)
-  → validateMiddleware      (short-circuits on first error, 400)
-  → authController.signUpUser
-      → authService.createUser(req.body)
-          → role guard
-          → duplicate email guard
-          → User.hashPassword()
-          → User.create()
-      → user.generateAuthToken()
-      → Set-Cookie: token
-      → 201 { user }
-```
-
-### Login
-
-```
-POST /api/auth/login
-  → loginValidation[]
-  → validateMiddleware
-  → authController.loginUser
-      → authService.loginUser(req.body)
-          → User.findOne({ email }).select('+password')
-          → user.comparePassword()
-      → user.generateAuthToken()
-      → Set-Cookie: token
-      → 200 { user }
-```
-
-### Create Event
-
-```
-POST /api/events
-  → authMiddleware.getUser       (reads JWT from cookie, populates req.user)
-  → roleMiddleware.requireRole("Admin","Organizer")
-  → createEventValidation[]
-  → validateMiddleware
-  → eventController.createEvent
-      → eventService.createEvent(req.body, req.user)
-          → collegeId and organizerId sourced from req.user (not from body)
-          → Event.create()
-      → 201 { success, data }
-```
-
-### Like / Unlike Event
-
-```
-POST /api/likes/:eventId/like
-  → authMiddleware.getUser
-  → likeController.likeEvent
-      → likeService.likeEvent(eventId, user)
-          → verify event exists and isActive
-          → check for existing like (409 if duplicate)
-          → Like.create()
-          → Event.updateOne $inc likesCount +1  (atomic)
-      → 200 { success, data: like }
-
-DELETE /api/likes/:eventId/like
-  → authMiddleware.getUser
-  → likeController.unlikeEvent
-      → likeService.unlikeEvent(eventId, user)
-          → verify like exists (400 if not)
-          → Like.deleteOne()
-          → Event.updateOne $inc likesCount -1  (with $gt: 0 floor guard)
-      → 200 { success, data }
-```
-
-### Nearby Events
-
-```
-GET /api/events/nearby
-  → authMiddleware.getUser         (collegeId comes from session user)
-  → eventController.getNearbyEvents
-      → eventService.getNearbyEvents(user.collegeId)
-          → College.findById(collegeId)  → read lat/lng
-          → College.find({})             → load all colleges
-          → filter by Haversine distance ≤ 50 km (in-memory)
-          → Event.find({ collegeId: { $in: nearbyIds }, isActive: true })
-      → 200 { success, data }
-```
-
-### Trending Events
-
-```
-GET /api/events/trending         (public, no auth required)
-  → eventController.getTrendingEvents
-      → eventService.getTrendingEvents()
-          → Event.find({ isActive: true })
-            .sort({ likesCount: -1, createdAt: -1 })
-            .limit(10)
-      → 200 { success, data }
-```
-
----
-
-## 16. Error Handling
-
-All intentional errors flow through `AppError`. The error middleware is the only place that sends error responses.
-
-**Typical error response:**
-```json
-{ "success": false, "message": "Human-readable error message" }
-```
-
-**Common status codes used:**
-
-| Code | Where thrown |
-|---|---|
-| 400 | Validation failures (validateMiddleware), unlike on non-existent like, missing collegeId on user |
-| 401 | Missing/invalid/expired token, user not found after token decode, wrong credentials |
-| 403 | Admin signup attempt, disallowed role, organizer trying to edit another's event |
-| 404 | Event not found, college not found |
-| 409 | Duplicate email on signup, duplicate like |
-| 500 | Unexpected errors, college creation failure |
-
----
-
-## 17. Environment Variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `MONGODB_URI` | Yes | MongoDB connection string |
-| `JWT_SECRET_KEY` | Yes | Secret used to sign JWTs |
-| `TOKEN_EXPIRY` | Yes | JWT expiry string, e.g. `"7d"` |
-| `PORT` | Yes | HTTP server port |
-| `FRONTEND_URL` | No | Production frontend origin added to CORS allowed list |
-| `NODE_ENV` | No | Set to `"production"` to enable secure cookies and suppress 4xx logs |
-| `ADMIN_EMAIL` | Script only | Email for the initial admin account (used by `createAdmin.js`) |
-| `ADMIN_PASSWORD` | Script only | Password for the initial admin account |
+- The frontend admin page calls `GET /users`, but the backend currently has no `/api/users` route.
+- Event responses do not currently `populate()` `collegeId` or `organizerId`, so consumers usually receive raw ObjectIds instead of nested objects.
+- `POST /api/events` validation requires a `collegeId` field in the request body, but `event.service.js` ignores it and always derives the real college from the authenticated user.
+- `PUT /api/events/:eventId` has auth and role checks but no validation middleware.
+- `seedUsersAndEvents.js` generates times like `9:30 AM`, while the create-event validator expects `HH:MM` 24-hour format.
+- Cookie max age is fixed at 24 hours, while JWT expiry comes from `TOKEN_EXPIRY`; those settings can drift if env values change.

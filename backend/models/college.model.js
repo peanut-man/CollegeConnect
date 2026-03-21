@@ -39,4 +39,6 @@ const collegeSchema = new mongoose.Schema({
 // 2dsphere index for geospatial queries
 collegeSchema.index({ location: "2dsphere" });
 
+collegeSchema.index({ name: 1 }, { unique: true });
+
 module.exports = mongoose.model('College', collegeSchema);

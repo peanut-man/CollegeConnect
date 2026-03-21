@@ -1,0 +1,975 @@
+[
+  {
+    "name": "Indian Institute of Technology Bombay",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "latitude": 19.1334,
+    "longitude": 72.9133
+  },
+  {
+    "name": "Indian Institute of Technology Delhi",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "latitude": 28.5450,
+    "longitude": 77.1926
+  },
+  {
+    "name": "Indian Institute of Technology Madras",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "latitude": 12.9916,
+    "longitude": 80.2336
+  },
+  {
+    "name": "Indian Institute of Technology Kanpur",
+    "city": "Kanpur",
+    "state": "Uttar Pradesh",
+    "latitude": 26.5123,
+    "longitude": 80.2329
+  },
+  {
+    "name": "Indian Institute of Technology Kharagpur",
+    "city": "Kharagpur",
+    "state": "West Bengal",
+    "latitude": 22.3149,
+    "longitude": 87.3105
+  },
+  {
+    "name": "Indian Institute of Technology Roorkee",
+    "city": "Roorkee",
+    "state": "Uttarakhand",
+    "latitude": 29.8636,
+    "longitude": 77.8960
+  },
+  {
+    "name": "Indian Institute of Technology Guwahati",
+    "city": "Guwahati",
+    "state": "Assam",
+    "latitude": 26.1844,
+    "longitude": 91.6915
+  },
+  {
+    "name": "Indian Institute of Technology Hyderabad",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "latitude": 17.5938,
+    "longitude": 78.1212
+  },
+  {
+    "name": "Indian Institute of Technology Gandhinagar",
+    "city": "Gandhinagar",
+    "state": "Gujarat",
+    "latitude": 23.2156,
+    "longitude": 72.6833
+  },
+  {
+    "name": "Indian Institute of Technology Jodhpur",
+    "city": "Jodhpur",
+    "state": "Rajasthan",
+    "latitude": 26.4735,
+    "longitude": 73.1143
+  },
+  {
+    "name": "Indian Institute of Technology Patna",
+    "city": "Patna",
+    "state": "Bihar",
+    "latitude": 25.5379,
+    "longitude": 84.8511
+  },
+  {
+    "name": "Indian Institute of Technology Bhubaneswar",
+    "city": "Bhubaneswar",
+    "state": "Odisha",
+    "latitude": 20.1487,
+    "longitude": 85.6814
+  },
+  {
+    "name": "Indian Institute of Technology Indore",
+    "city": "Indore",
+    "state": "Madhya Pradesh",
+    "latitude": 22.5206,
+    "longitude": 75.9197
+  },
+  {
+    "name": "Indian Institute of Technology Mandi",
+    "city": "Mandi",
+    "state": "Himachal Pradesh",
+    "latitude": 31.7754,
+    "longitude": 76.9861
+  },
+  {
+    "name": "Indian Institute of Technology Tirupati",
+    "city": "Tirupati",
+    "state": "Andhra Pradesh",
+    "latitude": 13.5481,
+    "longitude": 79.5728
+  },
+  {
+    "name": "Indian Institute of Science",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "latitude": 13.0212,
+    "longitude": 77.5671
+  },
+  {
+    "name": "National Institute of Technology Trichy",
+    "city": "Tiruchirappalli",
+    "state": "Tamil Nadu",
+    "latitude": 10.7603,
+    "longitude": 78.8134
+  },
+  {
+    "name": "National Institute of Technology Warangal",
+    "city": "Warangal",
+    "state": "Telangana",
+    "latitude": 17.9784,
+    "longitude": 79.5307
+  },
+  {
+    "name": "National Institute of Technology Surathkal",
+    "city": "Mangaluru",
+    "state": "Karnataka",
+    "latitude": 12.9958,
+    "longitude": 74.7932
+  },
+  {
+    "name": "National Institute of Technology Calicut",
+    "city": "Kozhikode",
+    "state": "Kerala",
+    "latitude": 11.3218,
+    "longitude": 75.9340
+  },
+  {
+    "name": "National Institute of Technology Rourkela",
+    "city": "Rourkela",
+    "state": "Odisha",
+    "latitude": 22.2541,
+    "longitude": 84.9027
+  },
+  {
+    "name": "National Institute of Technology Kurukshetra",
+    "city": "Kurukshetra",
+    "state": "Haryana",
+    "latitude": 29.9457,
+    "longitude": 76.8183
+  },
+  {
+    "name": "National Institute of Technology Jaipur",
+    "city": "Jaipur",
+    "state": "Rajasthan",
+    "latitude": 26.8634,
+    "longitude": 75.8166
+  },
+  {
+    "name": "National Institute of Technology Surat",
+    "city": "Surat",
+    "state": "Gujarat",
+    "latitude": 21.1600,
+    "longitude": 72.7847
+  },
+  {
+    "name": "National Institute of Technology Allahabad",
+    "city": "Prayagraj",
+    "state": "Uttar Pradesh",
+    "latitude": 25.4940,
+    "longitude": 81.8636
+  },
+  {
+    "name": "National Institute of Technology Silchar",
+    "city": "Silchar",
+    "state": "Assam",
+    "latitude": 24.7476,
+    "longitude": 92.7786
+  },
+  {
+    "name": "National Institute of Technology Durgapur",
+    "city": "Durgapur",
+    "state": "West Bengal",
+    "latitude": 23.5477,
+    "longitude": 87.2971
+  },
+  {
+    "name": "National Institute of Technology Nagpur",
+    "city": "Nagpur",
+    "state": "Maharashtra",
+    "latitude": 21.1458,
+    "longitude": 79.0882
+  },
+  {
+    "name": "National Institute of Technology Bhopal",
+    "city": "Bhopal",
+    "state": "Madhya Pradesh",
+    "latitude": 23.2100,
+    "longitude": 77.3968
+  },
+  {
+    "name": "National Institute of Technology Patna",
+    "city": "Patna",
+    "state": "Bihar",
+    "latitude": 25.6138,
+    "longitude": 85.1682
+  },
+  {
+    "name": "BITS Pilani",
+    "city": "Pilani",
+    "state": "Rajasthan",
+    "latitude": 28.3641,
+    "longitude": 75.6000
+  },
+  {
+    "name": "BITS Pilani Goa Campus",
+    "city": "Goa",
+    "state": "Goa",
+    "latitude": 15.3990,
+    "longitude": 73.8785
+  },
+  {
+    "name": "BITS Pilani Hyderabad Campus",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "latitude": 17.5449,
+    "longitude": 78.5718
+  },
+  {
+    "name": "Delhi Technological University",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "latitude": 28.7500,
+    "longitude": 77.1175
+  },
+  {
+    "name": "Netaji Subhas University of Technology",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "latitude": 28.6127,
+    "longitude": 77.2773
+  },
+  {
+    "name": "Jadavpur University",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "latitude": 22.4975,
+    "longitude": 88.3714
+  },
+  {
+    "name": "Anna University",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "latitude": 13.0100,
+    "longitude": 80.2350
+  },
+  {
+    "name": "PSG College of Technology",
+    "city": "Coimbatore",
+    "state": "Tamil Nadu",
+    "latitude": 11.0238,
+    "longitude": 77.0007
+  },
+  {
+    "name": "Coimbatore Institute of Technology",
+    "city": "Coimbatore",
+    "state": "Tamil Nadu",
+    "latitude": 11.0283,
+    "longitude": 76.9638
+  },
+  {
+    "name": "Sri Sivasubramaniya Nadar College of Engineering",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "latitude": 12.8234,
+    "longitude": 80.0415
+  },
+  {
+    "name": "Vellore Institute of Technology",
+    "city": "Vellore",
+    "state": "Tamil Nadu",
+    "latitude": 12.9692,
+    "longitude": 79.1559
+  },
+  {
+    "name": "VIT Chennai",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "latitude": 12.8406,
+    "longitude": 80.1534
+  },
+  {
+    "name": "SRM Institute of Science and Technology",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "latitude": 12.8231,
+    "longitude": 80.0445
+  },
+  {
+    "name": "Amrita Vishwa Vidyapeetham Coimbatore",
+    "city": "Coimbatore",
+    "state": "Tamil Nadu",
+    "latitude": 10.9026,
+    "longitude": 76.9018
+  },
+  {
+    "name": "Amrita Vishwa Vidyapeetham Kochi",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.0406,
+    "longitude": 76.3463
+  },
+  {
+    "name": "College of Engineering Pune",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "latitude": 18.5308,
+    "longitude": 73.8474
+  },
+  {
+    "name": "Pune Institute of Computer Technology",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "latitude": 18.4574,
+    "longitude": 73.8497
+  },
+  {
+    "name": "Vishwakarma Institute of Technology",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "latitude": 18.4655,
+    "longitude": 73.8652
+  },
+  {
+    "name": "MIT World Peace University",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "latitude": 18.5679,
+    "longitude": 73.7703
+  },
+  {
+    "name": "Symbiosis Institute of Technology",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "latitude": 18.5236,
+    "longitude": 73.7988
+  },
+  {
+    "name": "DJ Sanghvi College of Engineering",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "latitude": 19.1075,
+    "longitude": 72.8376
+  },
+  {
+    "name": "VJTI Mumbai",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "latitude": 19.0222,
+    "longitude": 72.8566
+  },
+  {
+    "name": "KJ Somaiya College of Engineering",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "latitude": 19.0728,
+    "longitude": 72.8996
+  },
+  {
+    "name": "Thadomal Shahani Engineering College",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "latitude": 19.0544,
+    "longitude": 72.8356
+  },
+  {
+    "name": "Fr. Conceicao Rodrigues College of Engineering",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "latitude": 19.0423,
+    "longitude": 72.8384
+  },
+  {
+    "name": "Sardar Patel College of Engineering",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "latitude": 19.1296,
+    "longitude": 72.8367
+  },
+  {
+    "name": "Ramrao Adik Institute of Technology",
+    "city": "Navi Mumbai",
+    "state": "Maharashtra",
+    "latitude": 19.0430,
+    "longitude": 73.0297
+    },
+  {
+    "name": "Pillai College of Engineering",
+    "city": "Navi Mumbai",
+    "state": "Maharashtra",
+    "latitude": 19.0330,
+    "longitude": 73.0630
+  },
+  {
+    "name": "PES University",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "latitude": 12.9342,
+    "longitude": 77.5355
+  },
+  {
+    "name": "RV College of Engineering",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "latitude": 12.9238,
+    "longitude": 77.4987
+  },
+  {
+    "name": "BMS College of Engineering",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "latitude": 12.9419,
+    "longitude": 77.5681
+  },
+  {
+    "name": "MS Ramaiah Institute of Technology",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "latitude": 13.0271,
+    "longitude": 77.5635
+  },
+  {
+    "name": "Dayananda Sagar College of Engineering",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "latitude": 12.8994,
+    "longitude": 77.5803
+  },
+  {
+    "name": "KSIT Bengaluru",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "latitude": 12.9100,
+    "longitude": 77.5957
+  },
+  {
+    "name": "Manipal Institute of Technology",
+    "city": "Manipal",
+    "state": "Karnataka",
+    "latitude": 13.3525,
+    "longitude": 74.7908
+  },
+  {
+    "name": "Karnatak University Dharwad",
+    "city": "Dharwad",
+    "state": "Karnataka",
+    "latitude": 15.4436,
+    "longitude": 75.0147
+  },
+  {
+    "name": "Osmania University",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "latitude": 17.4126,
+    "longitude": 78.5358
+  },
+  {
+    "name": "JNTU Hyderabad",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "latitude": 17.4945,
+    "longitude": 78.3916
+  },
+  {
+    "name": "Chaitanya Bharathi Institute of Technology",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "latitude": 17.3847,
+    "longitude": 78.4526
+  },
+  {
+    "name": "Vasavi College of Engineering",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "latitude": 17.3895,
+    "longitude": 78.4718
+  },
+  {
+    "name": "CVR College of Engineering",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "latitude": 17.5400,
+    "longitude": 78.3860
+  },
+  {
+    "name": "Andhra University College of Engineering",
+    "city": "Visakhapatnam",
+    "state": "Andhra Pradesh",
+    "latitude": 17.7333,
+    "longitude": 83.3198
+  },
+  {
+    "name": "GITAM University",
+    "city": "Visakhapatnam",
+    "state": "Andhra Pradesh",
+    "latitude": 17.7340,
+    "longitude": 83.3171
+  },
+  {
+    "name": "Lovely Professional University",
+    "city": "Phagwara",
+    "state": "Punjab",
+    "latitude": 31.2547,
+    "longitude": 75.7045
+  },
+  {
+    "name": "Thapar Institute of Engineering and Technology",
+    "city": "Patiala",
+    "state": "Punjab",
+    "latitude": 30.3560,
+    "longitude": 76.3647
+  },
+  {
+    "name": "Punjab Engineering College",
+    "city": "Chandigarh",
+    "state": "Chandigarh",
+    "latitude": 30.7600,
+    "longitude": 76.7900
+  },
+  {
+    "name": "Chandigarh University",
+    "city": "Mohali",
+    "state": "Punjab",
+    "latitude": 30.7726,
+    "longitude": 76.5756
+  },
+  {
+    "name": "Malaviya National Institute of Technology",
+    "city": "Jaipur",
+    "state": "Rajasthan",
+    "latitude": 26.8529,
+    "longitude": 75.8034
+  },
+  {
+    "name": "Amity University Noida",
+    "city": "Noida",
+    "state": "Uttar Pradesh",
+    "latitude": 28.5445,
+    "longitude": 77.3325
+  },
+  {
+    "name": "GL Bajaj Institute of Technology",
+    "city": "Greater Noida",
+    "state": "Uttar Pradesh",
+    "latitude": 28.4706,
+    "longitude": 77.5031
+  },
+  {
+    "name": "Shiv Nadar University",
+    "city": "Greater Noida",
+    "state": "Uttar Pradesh",
+    "latitude": 28.5271,
+    "longitude": 77.5680
+  },
+  {
+    "name": "Galgotias University",
+    "city": "Greater Noida",
+    "state": "Uttar Pradesh",
+    "latitude": 28.4987,
+    "longitude": 77.4897
+  },
+  {
+    "name": "IIIT Allahabad",
+    "city": "Prayagraj",
+    "state": "Uttar Pradesh",
+    "latitude": 25.4926,
+    "longitude": 81.8593
+  },
+  {
+    "name": "IIIT Hyderabad",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "latitude": 17.4453,
+    "longitude": 78.3497
+  },
+  {
+    "name": "IIIT Bangalore",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "latitude": 12.9147,
+    "longitude": 77.6395
+  },
+  {
+    "name": "IIIT Delhi",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "latitude": 28.5450,
+    "longitude": 77.2730
+  },
+  {
+    "name": "Heritage Institute of Technology",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "latitude": 22.5178,
+    "longitude": 88.4395
+  },
+  {
+    "name": "Institute of Engineering and Management Kolkata",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "latitude": 22.5228,
+    "longitude": 88.4317
+  },
+  {
+    "name": "Techno India University",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "latitude": 22.5350,
+    "longitude": 88.4025
+  },
+  {
+    "name": "Government College of Engineering Aurangabad",
+    "city": "Aurangabad",
+    "state": "Maharashtra",
+    "latitude": 19.8760,
+    "longitude": 75.3188
+  },
+  {
+    "name": "Walchand College of Engineering",
+    "city": "Sangli",
+    "state": "Maharashtra",
+    "latitude": 16.8636,
+    "longitude": 74.5733
+  },
+  {
+    "name": "Government College of Engineering Karad",
+    "city": "Karad",
+    "state": "Maharashtra",
+    "latitude": 17.2897,
+    "longitude": 74.1836
+  },
+  {
+    "name": "Shri Guru Gobind Singhji Institute of Engineering",
+    "city": "Nanded",
+    "state": "Maharashtra",
+    "latitude": 19.1383,
+    "longitude": 77.3210
+  },
+  {
+    "name": "KLE Technological University",
+    "city": "Hubli",
+    "state": "Karnataka",
+    "latitude": 15.3647,
+    "longitude": 75.1240
+  },
+  {
+    "name": "Visvesvaraya National Institute of Technology",
+    "city": "Nagpur",
+    "state": "Maharashtra",
+    "latitude": 21.1332,
+    "longitude": 79.0489
+  },
+  {
+    "name": "Maulana Azad National Institute of Technology",
+    "city": "Bhopal",
+    "state": "Madhya Pradesh",
+    "latitude": 23.2079,
+    "longitude": 77.3987
+  },
+  {
+    "name": "Sardar Vallabhbhai National Institute of Technology",
+    "city": "Surat",
+    "state": "Gujarat",
+    "latitude": 21.1643,
+    "longitude": 72.7842
+  },
+  {
+    "name": "Dhirubhai Ambani Institute of Information and Communication Technology",
+    "city": "Gandhinagar",
+    "state": "Gujarat",
+    "latitude": 23.1878,
+    "longitude": 72.6331
+  },
+  {
+    "name": "Nirma University",
+    "city": "Ahmedabad",
+    "state": "Gujarat",
+    "latitude": 23.1153,
+    "longitude": 72.5162
+  },
+  {
+    "name": "LD College of Engineering",
+    "city": "Ahmedabad",
+    "state": "Gujarat",
+    "latitude": 23.0283,
+    "longitude": 72.5673
+  },
+  {
+    "name": "Pandit Dwarka Prasad Mishra IIIT Jabalpur",
+    "city": "Jabalpur",
+    "state": "Madhya Pradesh",
+    "latitude": 23.2099,
+    "longitude": 79.9641
+  },
+  {
+    "name": "University Institute of Technology RGPV",
+    "city": "Bhopal",
+    "state": "Madhya Pradesh",
+    "latitude": 23.2117,
+    "longitude": 77.4304
+  },
+  {
+    "name": "Motilal Nehru National Institute of Technology",
+    "city": "Prayagraj",
+    "state": "Uttar Pradesh",
+    "latitude": 25.4916,
+    "longitude": 81.8627
+  },
+  {
+    "name": "Harcourt Butler Technical University",
+    "city": "Kanpur",
+    "state": "Uttar Pradesh",
+    "latitude": 26.4673,
+    "longitude": 80.3318
+  },
+  {
+    "name": "Institute of Technology BHU",
+    "city": "Varanasi",
+    "state": "Uttar Pradesh",
+    "latitude": 25.2677,
+    "longitude": 82.9913
+  },
+  {
+    "name": "Madan Mohan Malaviya University of Technology",
+    "city": "Gorakhpur",
+    "state": "Uttar Pradesh",
+    "latitude": 26.7606,
+    "longitude": 83.4032
+  },
+  {
+    "name": "University College of Engineering Osmania",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "latitude": 17.4126,
+    "longitude": 78.5280
+  },
+  {
+    "name": "Koneru Lakshmaiah Education Foundation",
+    "city": "Vijayawada",
+    "state": "Andhra Pradesh",
+    "latitude": 16.4419,
+    "longitude": 80.6337
+  },
+  {
+    "name": "Vignan University",
+    "city": "Guntur",
+    "state": "Andhra Pradesh",
+    "latitude": 16.2540,
+    "longitude": 80.5212
+  },
+  {
+    "name": "Sri Venkateswara University",
+    "city": "Tirupati",
+    "state": "Andhra Pradesh",
+    "latitude": 13.6288,
+    "longitude": 79.4192
+  },
+  {
+    "name": "Thiagarajar College of Engineering",
+    "city": "Madurai",
+    "state": "Tamil Nadu",
+    "latitude": 9.8993,
+    "longitude": 78.0826
+  },
+  {
+    "name": "Government College of Technology Coimbatore",
+    "city": "Coimbatore",
+    "state": "Tamil Nadu",
+    "latitude": 11.0175,
+    "longitude": 77.0037
+  },
+  {
+    "name": "Kumaraguru College of Technology",
+    "city": "Coimbatore",
+    "state": "Tamil Nadu",
+    "latitude": 11.0218,
+    "longitude": 77.0302
+  },
+  {
+    "name": "Karpagam Academy of Higher Education",
+    "city": "Coimbatore",
+    "state": "Tamil Nadu",
+    "latitude": 11.0348,
+    "longitude": 76.9528
+  },
+  {
+    "name": "College of Engineering Trivandrum",
+    "city": "Thiruvananthapuram",
+    "state": "Kerala",
+    "latitude": 8.5241,
+    "longitude": 76.9366
+  },
+  {
+    "name": "Government Engineering College Thrissur",
+    "city": "Thrissur",
+    "state": "Kerala",
+    "latitude": 10.5276,
+    "longitude": 76.2144
+  },
+  {
+    "name": "Model Engineering College",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.0260,
+    "longitude": 76.3083
+  },
+  {
+    "name": "National Institute of Technology Calicut",
+    "city": "Kozhikode",
+    "state": "Kerala",
+    "latitude": 11.3218,
+    "longitude": 75.9340
+  },
+  {
+    "name": "Rajagiri School of Engineering and Technology",
+    "city": "Kochi",
+    "state": "Kerala",
+    "latitude": 10.1128,
+    "longitude": 76.3497
+  },
+  {
+    "name": "Assam Engineering College",
+    "city": "Guwahati",
+    "state": "Assam",
+    "latitude": 26.1445,
+    "longitude": 91.7371
+  },
+  {
+    "name": "Royal Global University",
+    "city": "Guwahati",
+    "state": "Assam",
+    "latitude": 26.1931,
+    "longitude": 91.7742
+  },
+  {
+    "name": "National Institute of Technology Agartala",
+    "city": "Agartala",
+    "state": "Tripura",
+    "latitude": 23.8315,
+    "longitude": 91.2868
+  },
+  {
+    "name": "National Institute of Technology Manipur",
+    "city": "Imphal",
+    "state": "Manipur",
+    "latitude": 24.8170,
+    "longitude": 93.9368
+  },
+  {
+    "name": "National Institute of Technology Meghalaya",
+    "city": "Shillong",
+    "state": "Meghalaya",
+    "latitude": 25.5788,
+    "longitude": 91.8933
+  },
+  {
+    "name": "National Institute of Technology Mizoram",
+    "city": "Aizawl",
+    "state": "Mizoram",
+    "latitude": 23.7271,
+    "longitude": 92.7176
+  },
+  {
+    "name": "Indian School of Mines",
+    "city": "Dhanbad",
+    "state": "Jharkhand",
+    "latitude": 23.8144,
+    "longitude": 86.4415
+  },
+  {
+    "name": "National Institute of Technology Jamshedpur",
+    "city": "Jamshedpur",
+    "state": "Jharkhand",
+    "latitude": 22.7797,
+    "longitude": 86.1811
+  },
+  {
+    "name": "BIT Sindri",
+    "city": "Dhanbad",
+    "state": "Jharkhand",
+    "latitude": 23.7603,
+    "longitude": 86.4188
+  },
+  {
+    "name": "Birla Institute of Technology Mesra",
+    "city": "Ranchi",
+    "state": "Jharkhand",
+    "latitude": 23.4108,
+    "longitude": 85.4396
+  },
+  {
+    "name": "National Institute of Technology Hamirpur",
+    "city": "Hamirpur",
+    "state": "Himachal Pradesh",
+    "latitude": 31.6939,
+    "longitude": 76.5220
+  },
+  {
+    "name": "Jaypee University of Information Technology",
+    "city": "Solan",
+    "state": "Himachal Pradesh",
+    "latitude": 30.8560,
+    "longitude": 77.0110
+  },
+  {
+    "name": "Graphic Era University",
+    "city": "Dehradun",
+    "state": "Uttarakhand",
+    "latitude": 30.2680,
+    "longitude": 78.0322
+  },
+  {
+    "name": "Uttarakhand Technical University",
+    "city": "Dehradun",
+    "state": "Uttarakhand",
+    "latitude": 30.3165,
+    "longitude": 78.0322
+  },
+  {
+    "name": "DIT University",
+    "city": "Dehradun",
+    "state": "Uttarakhand",
+    "latitude": 30.3513,
+    "longitude": 77.9900
+  },
+  {
+    "name": "Jaypee Institute of Information Technology",
+    "city": "Noida",
+    "state": "Uttar Pradesh",
+    "latitude": 28.5249,
+    "longitude": 77.3328
+  },
+  {
+    "name": "Bennett University",
+    "city": "Greater Noida",
+    "state": "Uttar Pradesh",
+    "latitude": 28.4510,
+    "longitude": 77.5846
+  },
+  {
+    "name": "Maharaja Surajmal Institute of Technology",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "latitude": 28.6730,
+    "longitude": 77.1017
+  },
+  {
+    "name": "Indraprastha Institute of Information Technology",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "latitude": 28.5450,
+    "longitude": 77.2730
+  },
+  {
+    "name": "Ambedkar Institute of Advanced Communication Technologies",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "latitude": 28.6900,
+    "longitude": 77.1543
+  }
+]

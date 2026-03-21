@@ -2,6 +2,7 @@ const eventModel = require("../models/event.model");
 const collegeModel = require("../models/college.model");
 const AppError = require("../utils/appError");
 const redisClient = require("../config/redis");
+const notificationQueue = require("../queues/notification.queue");
 
 const TRENDING_CACHE_KEY = "trending_events";
 const TRENDING_CACHE_TTL = 60; // seconds
@@ -29,6 +30,17 @@ module.exports.createEvent = async (eventData, user) => {
     organizerId: user._id,
     externalLink,
   });
+
+  // Queue email notification (non-blocking)
+  notificationQueue
+    .add("send-event-email", {
+      eventId: event._id.toString(),
+      collegeId: user.collegeId.toString(),
+    })
+    .catch((err) => {
+      console.error("Failed to queue notification:", err.message);
+    });
+
   return event;
 };
 

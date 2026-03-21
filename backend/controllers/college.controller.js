@@ -26,3 +26,23 @@ module.exports.getAllColleges = async (req, res, next) => {
         next(error);
     }
 }
+
+module.exports.searchColleges = async (req, res, next) => {
+    try {
+        const { q = '', limit = 10 } = req.query;
+
+        const colleges = await collegeModel
+            .find({
+                name: { $regex: q, $options: 'i' }
+            })
+            .limit(parseInt(limit, 10))
+            .select('name _id');
+
+        res.status(200).json({
+            success: true,
+            data: colleges
+        });
+    } catch (error) {
+        next(error);
+    }
+}

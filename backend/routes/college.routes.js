@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createCollege, getAllColleges } = require("../controllers/college.controller");
+const { createCollege, getAllColleges, searchColleges } = require("../controllers/college.controller");
 const { createCollegeValidation } = require("../validations/college.validations");
 const {validateMiddleware} = require("../middlewares/validate.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
@@ -14,6 +14,8 @@ router.post(
   roleMiddleware.requireRole("Admin"),
   createCollege
 );
+
+router.get("/search", searchColleges);
 
 router.get("/", getAllColleges);
 

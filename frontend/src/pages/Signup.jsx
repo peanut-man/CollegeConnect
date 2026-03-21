@@ -1,23 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import api from "../services/api";
-
-function normalizeColleges(payload) {
-  if (Array.isArray(payload?.data)) {
-    return payload.data;
-  }
-  if (Array.isArray(payload?.colleges)) {
-    return payload.colleges;
-  }
-  return [];
-}
+import CollegeSelect from "../components/CollegeSelect";
 
 function Signup() {
   const { signup } = useAuth();
   const navigate = useNavigate();
-  const [colleges, setColleges] = useState([]);
-  const [loadingColleges, setLoadingColleges] = useState(true);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -27,37 +15,6 @@ function Signup() {
     role: "Student",
     collegeId: "",
   });
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadColleges() {
-      try {
-        const response = await api.get("/colleges");
-        if (!active) {
-          return;
-        }
-        setColleges(normalizeColleges(response.data));
-      } catch (requestError) {
-        if (active) {
-          setError(
-            requestError.response?.data?.message ||
-              "Unable to load colleges for signup.",
-          );
-        }
-      } finally {
-        if (active) {
-          setLoadingColleges(false);
-        }
-      }
-    }
-
-    loadColleges();
-
-    return () => {
-      active = false;
-    };
-  }, []);
 
   function handleChange(event) {
     setFormData((current) => ({
@@ -155,22 +112,11 @@ function Signup() {
 
         <label className="grid gap-2 text-amber-50">
           College
-          <select
-            name="collegeId"
+          <CollegeSelect
             value={formData.collegeId}
             onChange={handleChange}
-            disabled={loadingColleges}
             required
-          >
-            <option value="">
-              {loadingColleges ? "Loading colleges..." : "Select your college"}
-            </option>
-            {colleges.map((college) => (
-              <option key={college._id} value={college._id}>
-                {college.name}
-              </option>
-            ))}
-          </select>
+          />
         </label>
 
         {error ? (
