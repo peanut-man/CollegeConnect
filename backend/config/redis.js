@@ -1,25 +1,33 @@
-const { createClient } = require("redis");
+const Redis = require("ioredis");
 
-const redisClient = createClient({
-  url: process.env.REDIS_URL || "redis://localhost:6379",
-});
+let redisClient = null;
 
-redisClient.on("error", (err) => {
-  console.error("Redis Client Error:", err.message);
-});
-
-redisClient.on("connect", () => {
-  console.log("Connected to Redis.");
-});
-
-const connectRedis = async () => {
+if (process.env.REDIS_URL) {
   try {
-    await redisClient.connect();
-  } catch (error) {
-    console.error("Failed to connect to Redis:", error.message);
-  }
-};
+    redisClient = new Redis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: null,
+      retryStrategy: (times) => {
+        if (times > 3) {
+          console.warn("Redis connection failed. Features requiring Redis will be degraded.");
+          return null; // Stop retrying
+        }
+        return Math.min(times * 50, 2000);
+      },
+    });
 
-connectRedis();
+    redisClient.on("error", (err) => {
+      console.warn("Redis Error:", err.message);
+    });
+
+    redisClient.on("connect", () => {
+      console.log("Connected to Redis.");
+    });
+  } catch (err) {
+    console.error("Failed to initialize Redis:", err.message);
+    redisClient = null;
+  }
+} else {
+  console.log("No REDIS_URL provided. Redis and BullMQ features disabled.");
+}
 
 module.exports = redisClient;

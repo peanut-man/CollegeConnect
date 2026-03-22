@@ -2,7 +2,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const { Worker } = require("bullmq");
 const connectToDb = require("../config/db");
-const connection = require("../config/bullmq.redis");
+const redisClient = require("../config/redis");
 const { sendEventNotification } = require("../services/email.service");
 const EventModel = require("../models/event.model");
 const UserModel = require("../models/user.model");
@@ -43,10 +43,15 @@ const processEventNotification = async (job) => {
 };
 
 const startWorker = async () => {
+  if (!redisClient) {
+    console.warn("Redis disabled, worker not starting.");
+    return;
+  }
+
   await connectToDb();
 
   const worker = new Worker("event-notifications", processEventNotification, {
-    connection,
+    connection: redisClient,
     concurrency: 5,
   });
 
@@ -64,19 +69,15 @@ const startWorker = async () => {
 
   console.log("Notification worker started. Waiting for jobs...");
 
-  process.on("SIGTERM", async () => {
+  const shutdown = async () => {
     console.log("Shutting down worker...");
     await worker.close();
     await mongoose.disconnect();
     process.exit(0);
-  });
+  };
 
-  process.on("SIGINT", async () => {
-    console.log("Shutting down worker...");
-    await worker.close();
-    await mongoose.disconnect();
-    process.exit(0);
-  });
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 };
 
 startWorker().catch((err) => {

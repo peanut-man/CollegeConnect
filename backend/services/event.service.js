@@ -9,7 +9,7 @@ const TRENDING_CACHE_TTL = 60; // seconds
 
 module.exports.invalidateTrendingCache = async () => {
   try {
-    if (redisClient.isReady) {
+    if (redisClient) {
       await redisClient.del(TRENDING_CACHE_KEY);
     }
   } catch (err) {
@@ -32,14 +32,16 @@ module.exports.createEvent = async (eventData, user) => {
   });
 
   // Queue email notification (non-blocking)
-  notificationQueue
-    .add("send-event-email", {
-      eventId: event._id.toString(),
-      collegeId: user.collegeId.toString(),
-    })
-    .catch((err) => {
+  if (notificationQueue) {
+    try {
+      await notificationQueue.add("send-event-email", {
+        eventId: event._id.toString(),
+        collegeId: user.collegeId.toString(),
+      });
+    } catch (err) {
       console.error("Failed to queue notification:", err.message);
-    });
+    }
+  }
 
   return event;
 };
@@ -143,7 +145,7 @@ module.exports.getEventByCollegeId = async (collegeId) => {
 module.exports.getTrendingEvents = async () => {
   // Try to get from Redis cache first
   try {
-    if (redisClient.isReady) {
+    if (redisClient) {
       const cached = await redisClient.get(TRENDING_CACHE_KEY);
       if (cached) {
         return JSON.parse(cached);
@@ -162,7 +164,7 @@ module.exports.getTrendingEvents = async () => {
 
   // Store in Redis cache
   try {
-    if (redisClient.isReady) {
+    if (redisClient) {
       await redisClient.set(TRENDING_CACHE_KEY, JSON.stringify(events), {
         EX: TRENDING_CACHE_TTL,
       });
