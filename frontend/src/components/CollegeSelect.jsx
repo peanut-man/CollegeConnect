@@ -117,7 +117,7 @@ function CollegeSelect({ value, onChange, required = false }) {
       <input type="hidden" name="collegeId" value={value} required={required} />
 
       {showDropdown && (
-        <ul className="absolute bg-[var(--color-panel)] border border-white/10 w-full mt-1 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+        <ul className="absolute bg-[#1e2532] border border-white/10 w-full mt-1 rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.5)] z-50 max-h-60 overflow-y-auto">
           {loading && (
             <li className="p-3 text-[var(--color-muted)]">Searching...</li>
           )}

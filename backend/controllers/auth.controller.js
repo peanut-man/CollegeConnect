@@ -14,28 +14,33 @@ function getAuthCookieOptions() {
 module.exports.signUpUser = async (req, res, next) => {
   try {
     const user = await authService.createUser(req.body);
-    const token = user.generateAuthToken();
-    res.cookie("token", token, getAuthCookieOptions());
-    res.status(201).json({ user });
-  } catch (error) {
-    next(error);
-  }
-};
+      await user.populate("collegeId", "name city state");
+      const token = user.generateAuthToken();
+      res.cookie("token", token, getAuthCookieOptions());
+      res.status(201).json({ user });
+    } catch (error) {
+      next(error);
+    }
+  };
 
-module.exports.loginUser = async (req, res, next) => {
-  try {
-    const user = await authService.loginUser(req.body);
-    const token = user.generateAuthToken();
-    res.cookie("token", token, getAuthCookieOptions());
-    res.status(200).json({ user });
-  } catch (error) {
-    next(error);
-  }
-};
+  module.exports.loginUser = async (req, res, next) => {
+    try {
+      const user = await authService.loginUser(req.body);
+      await user.populate("collegeId", "name city state");
+      const token = user.generateAuthToken();
+      res.cookie("token", token, getAuthCookieOptions());
+      res.status(200).json({ user });
+    } catch (error) {
+      next(error);
+    }
+  };
 
-module.exports.getUser = async (req, res, next) => {
-  res.status(200).json({ user: req.user ?? null });
-};
+  module.exports.getUser = async (req, res, next) => {
+    if (req.user) {
+      await req.user.populate("collegeId", "name city state");
+    }
+    res.status(200).json({ user: req.user ?? null });
+  };
 
 module.exports.logoutUser = async (req, res) => {
   res.clearCookie("token", {
@@ -46,3 +51,5 @@ module.exports.logoutUser = async (req, res) => {
 
   res.status(200).json({ message: "Logged out successfully" });
 };
+
+

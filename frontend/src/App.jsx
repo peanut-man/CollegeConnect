@@ -3,12 +3,14 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
 import Shell from "./components/Shell";
 import CreateEvent from "./pages/CreateEvent";
+import EditEvent from "./pages/EditEvent";
 import EventDetail from "./pages/EventDetail";
 import Events from "./pages/Events";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import MyCollege from "./pages/MyCollege";
 import Nearby from "./pages/Nearby";
+import Profile from "./pages/Profile";
 import Signup from "./pages/Signup";
 import Trending from "./pages/Trending";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -23,6 +25,14 @@ function App() {
         <Route index element={<Home />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:eventId" element={<EventDetail />} />
+        <Route
+          path="/events/:eventId/edit"
+          element={
+            <ProtectedRoute requireRoles={["Admin", "Organizer"]}>
+              <EditEvent />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/trending" element={<Trending />} />
         <Route
           path="/nearby"
@@ -37,6 +47,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MyCollege />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />

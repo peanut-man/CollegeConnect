@@ -52,6 +52,7 @@ module.exports.getAllEvents = async (options = {}) => {
   const [events, total] = await Promise.all([
     eventModel
       .find({ isActive: true })
+      .populate("collegeId", "name city state")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit),
@@ -70,7 +71,10 @@ module.exports.getAllEvents = async (options = {}) => {
 };
 
 module.exports.getEventById = async (eventId) => {
-  const event = await eventModel.findOne({ _id: eventId, isActive: true });
+  const event = await eventModel
+    .findOne({ _id: eventId, isActive: true })
+    .populate("collegeId", "name city state")
+    .populate("organizerId", "name");
   if (!event) {
     throw new AppError("Event not found", 404);
   }
@@ -131,7 +135,7 @@ module.exports.getEventByCollegeId = async (collegeId) => {
       collegeId: collegeId,
       isActive: true,
     })
-    .select("-collegeId")
+    .populate("collegeId", "name city state")
     .sort({ createdAt: -1 });
   return events;
 };
@@ -152,7 +156,7 @@ module.exports.getTrendingEvents = async () => {
   // Fetch from MongoDB if cache miss or Redis unavailable
   const events = await eventModel
     .find({ isActive: true })
-    .select("-collegeId")
+    .populate("collegeId", "name city state")
     .sort({ likesCount: -1, createdAt: -1 })
     .limit(10);
 
@@ -203,7 +207,7 @@ module.exports.getNearbyEvents = async (collegeId) => {
       collegeId: { $in: nearbyCollegeIds },
       isActive: true,
     })
-    .select("-collegeId")
+    .populate("collegeId", "name city state")
     .sort({ createdAt: -1 });
 
   return events;

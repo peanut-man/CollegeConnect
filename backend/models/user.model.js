@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     },
     collegeId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'college',
+        ref: 'College',
     }
 },{
     timestamps: true

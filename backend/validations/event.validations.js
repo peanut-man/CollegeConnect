@@ -25,12 +25,8 @@ exports.createEventValidation = [
         .trim()
         .notEmpty().withMessage('Event time is required')
         .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).withMessage('Event time must be in HH:MM format'),
-    body('collegeId')
-        .trim()
-        .notEmpty().withMessage('College ID is required')
-        .isMongoId().withMessage('College ID must be a valid Mongo ID'),
     body('externalLink')
-        .optional()
+        .optional({ checkFalsy: true })
         .trim()
         .isURL().withMessage('External link must be a valid URL')
 ];
