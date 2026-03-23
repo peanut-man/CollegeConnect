@@ -5,8 +5,8 @@ const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 1 day in milliseconds
 function getAuthCookieOptions() {
   return {
     httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    secure: true,
     maxAge: TOKEN_EXPIRY_MS,
   };
 }
@@ -45,8 +45,8 @@ module.exports.signUpUser = async (req, res, next) => {
 module.exports.logoutUser = async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    secure: true,
   });
 
   res.status(200).json({ message: "Logged out successfully" });
