@@ -15,7 +15,7 @@ const adminLinks = [
   },
   {
     to: "/admin/users",
-    title: "Manage Users",
+    title: "View Users",
     description: "View registered users and their roles.",
     icon: "👥",
   },

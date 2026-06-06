@@ -28,5 +28,9 @@ exports.createEventValidation = [
     body('externalLink')
         .optional({ checkFalsy: true })
         .trim()
-        .isURL().withMessage('External link must be a valid URL')
+        .isURL().withMessage('External link must be a valid URL'),
+    body('imageUrl')
+        .optional({ checkFalsy: true })
+        .trim()
+        .isURL().withMessage('Image URL must be a valid URL')
 ];

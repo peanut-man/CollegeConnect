@@ -22,7 +22,18 @@ function EventCard({ event, onLikeChange, user }) {
   return (
     <article className="group relative flex flex-col p-6 rounded-2xl border border-white/10 bg-[#161b22] shadow-lg overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-xl hover:shadow-amber-500/10">
       <Link to={`/events/${event._id}`} className="contents cursor-pointer">
-        <div className="flex items-center justify-between gap-3 mb-4">
+        {event.imageUrl && (
+          <div className="-mx-6 -mt-6 mb-4 h-48 overflow-hidden">
+            <img
+              src={event.imageUrl}
+              alt={event.title}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#161b22] to-transparent pointer-events-none" />
+          </div>
+        )}
+
+        <div className={`flex items-center justify-between gap-3 mb-4 ${event.imageUrl ? '' : ''}`}>
           <span className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-medium tracking-wide bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/30 text-amber-200 uppercase">
             {event.category}
           </span>

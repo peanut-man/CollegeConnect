@@ -18,7 +18,7 @@ module.exports.invalidateTrendingCache = async () => {
 };
 
 module.exports.createEvent = async (eventData, user) => {
-  const { title, description, category, eventDate, eventTime, externalLink } =
+  const { title, description, category, eventDate, eventTime, externalLink, imageUrl } =
     eventData;
   const event = await eventModel.create({
     title,
@@ -29,6 +29,7 @@ module.exports.createEvent = async (eventData, user) => {
     collegeId: user.collegeId,
     organizerId: user._id,
     externalLink,
+    imageUrl,
   });
 
   // Queue email notification (non-blocking)

@@ -48,7 +48,7 @@ function ManageUsers() {
         >
           &larr; Back to Dashboard
         </Link>
-        <h1 className="m-0 text-2xl">Manage Users</h1>
+        <h1 className="m-0 text-2xl">View Users</h1>
       </div>
 
       {error && (

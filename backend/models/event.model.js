@@ -36,6 +36,9 @@ const eventSchema = new mongoose.Schema({
     externalLink:{
         type: String,
     },
+    imageUrl:{
+        type: String,
+    },
     likesCount:{
         type: Number,
         default: 0

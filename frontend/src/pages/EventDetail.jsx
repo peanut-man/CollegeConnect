@@ -175,7 +175,18 @@ function EventDetail() {
         )}
       </div>
 
-      <article className="max-w-4xl relative z-10">
+      {event.imageUrl && (
+        <div className="-mx-6 -mt-6 md:-mx-8 md:-mt-8 mb-8 h-64 md:h-96 overflow-hidden relative">
+          <img
+            src={event.imageUrl}
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#161b22] to-transparent" />
+        </div>
+      )}
+
+      <article className={`max-w-4xl relative z-10 ${event.imageUrl ? '' : ''}`}>
         <header className="flex items-center gap-4 flex-wrap mb-4">
           <span className="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full text-xs font-semibold tracking-wide bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/30 text-amber-200 uppercase">
             {event.category}
