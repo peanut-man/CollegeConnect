@@ -2,14 +2,15 @@
 
 **Live Demo:** [https://collegeconnect-frontend-zdse.onrender.com/](https://collegeconnect-frontend-zdse.onrender.com/)
 
-College Connect is a platform for viewing, creating, and engaging with college events. It consists of a Node.js/Express backend and a React (Vite) frontend.
+College Connect is a platform for viewing, creating, and engaging with college events. It consists of a Node.js/Express backend, a React (Vite) frontend, and a Docker Compose setup for containerized development and deployment.
 
 ## Project Structure
 
 This repository contains two main packages:
 
-- **[`backend/`](./backend)**: A Node.js API with Express, MongoDB, Redis, and BullMQ.
+- **[`backend/`](./backend)**: A Node.js API with Express, MongoDB, Redis, BullMQ, and Cloudinary.
 - **[`frontend/`](./frontend)**: A React 19 single-page application built with Vite, Tailwind CSS v4, and React Query.
+- **[`docker-compose.yml`](./docker-compose.yml)**: Orchestrates MongoDB, Redis, API server, worker, and frontend via Docker.
 
 ## Tech Stack
 
@@ -20,6 +21,7 @@ This repository contains two main packages:
 - **Caching & Queues:** Redis, BullMQ (for email notifications)
 - **Authentication:** JWT (Cookie-based), bcrypt
 - **Validation & Security:** express-validator, cors, express-rate-limit
+- **Image Upload:** Cloudinary, multer, multer-storage-cloudinary
 
 ### Frontend
 - **Framework:** React 19, Vite
@@ -35,6 +37,7 @@ This repository contains two main packages:
 - **Events:** Create, update, soft-delete, and browse events.
 - **Feeds:** Supports paginated active events, trending events (cached in Redis), nearby events (geospatial search), and college-specific events.
 - **Engagement:** Like/Unlike functionality with automatic trending cache invalidation.
+- **Image Upload:** Cloudinary-powered event poster/banner upload with preview on create and edit forms.
 - **Background Jobs:** BullMQ worker for processing event notification emails asynchronously.
 
 ## Getting Started
@@ -44,15 +47,19 @@ This repository contains two main packages:
 - MongoDB
 - Redis server
 - SMTP Server (for email notifications)
+- Docker & Docker Compose (for containerized setup)
+- Cloudinary account (free tier) for image uploads
 
-### 1. Clone the repository
+### Option A: Manual Setup (for development)
+
+#### 1. Clone the repository
 
 ```bash
 git clone <repository-url>
 cd college-connect
 ```
 
-### 2. Setup Backend
+#### 2. Setup Backend
 
 Navigate to the `backend` directory and install dependencies:
 ```bash
@@ -77,6 +84,9 @@ SMTP_PASS=password
 SMTP_FROM=noreply@example.com
 FRONTEND_URL=http://localhost:5173
 NODE_ENV=development
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 ```
 
 Run seed scripts to populate database (optional):
@@ -97,7 +107,7 @@ npm run dev
 node workers/notification.worker.js
 ```
 
-### 3. Setup Frontend
+#### 3. Setup Frontend
 
 Navigate to the `frontend` directory and install dependencies:
 ```bash
@@ -116,6 +126,39 @@ npm run dev
 ```
 
 Open `http://localhost:5173` in your browser.
+
+### Option B: Docker Setup (for containerized deployment)
+
+#### 1. Clone and configure
+
+```bash
+git clone <repository-url>
+cd college-connect
+```
+
+Ensure `backend/.env` exists with all required variables (including Cloudinary credentials from the example above).
+
+#### 2. Start all services
+
+```bash
+docker compose up --build
+```
+
+This starts five containers:
+- **mongodb** — MongoDB 7 database
+- **redis** — Redis 7 for BullMQ and caching
+- **backend** — Express API (port 3000, internal only)
+- **worker** — BullMQ notification worker (same image, different command)
+- **frontend** — Nginx serving the React SPA, proxying `/api` to backend
+
+Open `http://localhost:3000` in your browser. Nginx serves the frontend and forwards all `/api/*` requests to the backend container. No `VITE_API_URL` needed.
+
+#### 3. Optional — Seed data
+
+```bash
+# One-off seed (run after services are up)
+docker compose run --rm backend sh -c "node scripts/seedColleges.js && node scripts/seedUsersAndEvents.js && node scripts/createAdmin.js"
+```
 
 ---
 
@@ -175,14 +218,17 @@ frontend/
     |   |-- Hero.jsx
     |   |-- PageIntro.jsx
     |   |-- ErrorBoundary.jsx
+    |   |-- DeleteConfirmModal.jsx
     |   `-- Navbar.jsx
     `-- pages/
         |-- Home.jsx
         |-- Events.jsx
         |-- EventDetail.jsx
+        |-- EditEvent.jsx
         |-- Trending.jsx
         |-- Nearby.jsx
         |-- MyCollege.jsx
+        |-- Profile.jsx
         |-- CreateEvent.jsx
         |-- Login.jsx
         |-- Signup.jsx
@@ -216,11 +262,13 @@ All routes are rendered inside `Shell`, which provides the sticky header, primar
 | `/trending` | `Trending` | Public |
 | `/nearby` | `Nearby` | Authenticated |
 | `/my-college` | `MyCollege` | Authenticated |
+| `/events/:eventId/edit` | `EditEvent` | `Admin` or `Organizer` |
 | `/create-event` | `CreateEvent` | `Admin` or `Organizer` |
+| `/profile` | `Profile` | Authenticated |
 | `/admin` | `AdminDashboard` | `Admin` only |
 | `/admin/colleges` | `ManageColleges` | `Admin` only |
 | `/admin/events` | `ManageEvents` | `Admin` only |
-| `/admin/users` | `ManageUsers` | `Admin` only |
+| `/admin/users` | `ViewUsers` | `Admin` only |
 | `/login` | `Login` | Public-only |
 | `/signup` | `Signup` | Public-only |
 | `*` | Redirect to `/` | Fallback |
@@ -251,9 +299,9 @@ The app is fully cookie-session based.
 ### API Integration
 `src/services/api.js` creates one Axios instance with:
 - `withCredentials: true`
-- `Content-Type: application/json`
 - `baseURL` from `VITE_API_URL`, if defined
 - fallback base URL of `http://<current-hostname>:3000/api`
+- Content-Type is auto-detected: `application/json` for JSON payloads, `multipart/form-data` for file uploads
 
 ### Page Responsibilities
 - `Home` shows the hero plus the first three items from the general events feed.
@@ -262,13 +310,15 @@ The app is fully cookie-session based.
 - `Nearby` uses the authenticated user's college to fetch nearby college events.
 - `MyCollege` shows events for the signed-in user's own college.
 - `EventDetail` shows the full event view.
-- `CreateEvent` is the organizer/admin form for publishing a new event.
+- `CreateEvent` is the organizer/admin form for publishing a new event with optional Cloudinary image upload.
+- `EditEvent` pre-fills the event form including the existing image, allowing replacement or removal.
 - `Login` redirects back to the originally requested protected route when possible.
 - `Signup` creates an account and immediately enters an authenticated session.
+- `Profile` shows the signed-in user's avatar, name, role, email, college, and member since date.
 - `AdminDashboard` links to the three admin management pages.
 - `ManageColleges` lists colleges and creates new ones.
 - `ManageEvents` lists all events and soft-deletes them through the backend.
-- `ManageUsers` attempts to list all users for admins.
+- `ViewUsers` lists all users for admins with role badges and college names.
 
 ### Important Components
 #### `Shell.jsx`
@@ -300,17 +350,19 @@ The styling system is a mix of Tailwind utilities and a custom theme in `src/ind
 ### Environment Variables
 | Variable | Purpose |
 | --- | --- |
-| `VITE_API_URL` | Optional explicit backend base URL |
+| `VITE_API_URL` | Optional explicit backend base URL (not needed in Docker — Nginx proxies `/api`) |
 
 ---
 
 ## Backend Documentation
 
-The backend is a CommonJS Node.js API built around Express-style route modules, Mongoose models, Redis, BullMQ, and cookie-based JWT auth. It exposes four live API domains under `/api`:
+The backend is a CommonJS Node.js API built around Express-style route modules, Mongoose models, Redis, BullMQ, Cloudinary, and cookie-based JWT auth. It exposes five live API domains under `/api`:
 - auth
 - colleges
 - events
 - likes
+- users
+- upload
 
 In addition to the API server, the repo includes a separate BullMQ worker process for event-notification emails.
 
@@ -324,6 +376,7 @@ In addition to the API server, the repo includes a separate BullMQ worker proces
 | Security/control | `cors`, `express-rate-limit` | CORS allowlist plus per-route/global throttling |
 | Queue/cache | `bullmq`, `ioredis`, `redis` | BullMQ for jobs, Redis cache for trending feed |
 | Email | `nodemailer` | Event notification emails |
+| Image upload | `cloudinary`, `multer`, `multer-storage-cloudinary` | Cloudinary-backed poster upload |
 
 ### Backend Scripts
 | Command | Purpose |
@@ -341,6 +394,8 @@ There are two runtime processes in the repo:
 1. API server: `backend/server.js`
 2. Notification worker: `backend/workers/notification.worker.js`
 
+When using Docker, both processes (plus MongoDB, Redis, and the frontend) run as separate containers orchestrated by `docker-compose.yml`.
+
 ### App Bootstrap
 `app.js` performs startup in this order:
 1. Load environment variables with `dotenv.config()`
@@ -351,7 +406,7 @@ There are two runtime processes in the repo:
 6. Register `express.json()` and `express.urlencoded({ extended: true })`
 7. Expose `GET /` health-style response returning `"hello"`
 8. Apply the general API rate limiter to `/api`
-9. Mount `/api/auth`, `/api/colleges`, `/api/events`, and `/api/likes`
+9. Mount `/api/auth`, `/api/colleges`, `/api/events`, `/api/likes`, `/api/users`, and `/api/upload`
 10. Register the centralized error handler
 
 ### Data Model
@@ -365,7 +420,7 @@ There are two runtime processes in the repo:
 - Indexes: unique index on `name`, `2dsphere` index on `location`
 
 #### `Event`
-- Fields: `title`, `description`, `category`, `eventDate`, `eventTime`, `collegeId`, `organizerId`, `externalLink`, `likesCount`, `isActive`, timestamps
+- Fields: `title`, `description`, `category`, `eventDate`, `eventTime`, `collegeId`, `organizerId`, `externalLink`, `imageUrl`, `likesCount`, `isActive`, timestamps
 - Indexes: `{ isActive: 1, likesCount: -1, createdAt: -1 }`, `{ collegeId: 1, isActive: 1, createdAt: -1 }`
 
 #### `Like`
@@ -404,8 +459,14 @@ There are two runtime processes in the repo:
 - `POST /:eventId/like` - Authenticated like
 - `DELETE /:eventId/like` - Authenticated unlike
 
-### Queueing, Cache, and Email
-- Two Redis clients are used: `config/redis.js` (cache) and `config/bullmq.redis.js` (BullMQ).
+#### User Routes (`/api/users`)
+- `GET /` - Admin-only list of all users (populated with college name)
+
+#### Upload Routes (`/api/upload`)
+- `POST /` - Authenticated `Admin`/`Organizer` upload image to Cloudinary, returns URL
+
+### Queueing, Cache, Email, and Image Upload
+- A single Redis client (`config/redis.js`) is used for both caching and BullMQ.
 - **Trending Cache**: Caches top events in Redis. Key `trending_events`, TTL 60 seconds. Invalidates on like/unlike.
 - **Notification Queue**: Adds `send-event-email` job to `event-notifications` queue upon event creation.
 - **Notification Worker**: Fetches event and users in the same college, sends one email per user using Nodemailer.
