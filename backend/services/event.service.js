@@ -18,8 +18,15 @@ module.exports.invalidateTrendingCache = async () => {
 };
 
 module.exports.createEvent = async (eventData, user) => {
-  const { title, description, category, eventDate, eventTime, externalLink, imageUrl } =
-    eventData;
+  const {
+    title,
+    description,
+    category,
+    eventDate,
+    eventTime,
+    externalLink,
+    imageUrl,
+  } = eventData;
   const event = await eventModel.create({
     title,
     description,
@@ -52,14 +59,35 @@ module.exports.getAllEvents = async (options = {}) => {
   const limit = Math.min(50, Math.max(1, parseInt(options.limit) || 10));
   const skip = (page - 1) * limit;
 
+  const filter = { isActive: true };
+
+  if (options.category) {
+    filter.category = options.category;
+  }
+
+  if (options.search) {
+    const colleges = await collegeModel
+      .find({ name: { $regex: options.search, $options: "i" } })
+      .select("_id");
+    const collegeIds = colleges.map((c) => c._id);
+    if (collegeIds.length > 0) {
+      filter.collegeId = { $in: collegeIds };
+    } else {
+      return {
+        events: [],
+        pagination: { page, limit, total: 0, totalPages: 0 },
+      };
+    }
+  }
+
   const [events, total] = await Promise.all([
     eventModel
-      .find({ isActive: true })
+      .find(filter)
       .populate("collegeId", "name city state")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit),
-    eventModel.countDocuments({ isActive: true }),
+    eventModel.countDocuments(filter),
   ]);
 
   return {
@@ -99,11 +127,9 @@ module.exports.updateEventById = async (eventId, updateData, user) => {
       403,
     );
   }
-  const updatedEvent = await eventModel.findByIdAndUpdate(
-    eventId,
-    updateData,
-    { new: true },
-  );
+  const updatedEvent = await eventModel.findByIdAndUpdate(eventId, updateData, {
+    new: true,
+  });
   return updatedEvent;
 };
 
