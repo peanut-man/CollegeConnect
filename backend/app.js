@@ -10,6 +10,7 @@ const eventRoutes = require('./routes/event.routes');
 const likeRoutes = require('./routes/like.routes');
 const userRoutes = require('./routes/user.routes');
 const uploadRoutes = require('./routes/upload.routes');
+const aiRoutes = require('./routes/ai.routes');
 const errorHandler = require('./middlewares/error.middleware');
 const { generalLimiter } = require('./middlewares/rateLimit.middleware');
 const connectToDb = require('./config/db');
@@ -50,6 +51,7 @@ app.use("/api/events", eventRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Centralized error handler
 app.use(errorHandler);

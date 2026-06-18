@@ -65,6 +65,19 @@ module.exports.getAllEvents = async (options = {}) => {
     filter.category = options.category;
   }
 
+  if (options.q) {
+    filter.$or = [
+      { title: { $regex: options.q, $options: "i" } },
+      { description: { $regex: options.q, $options: "i" } },
+    ];
+  }
+
+  if (options.dateFrom || options.dateTo) {
+    filter.eventDate = {};
+    if (options.dateFrom) filter.eventDate.$gte = new Date(options.dateFrom);
+    if (options.dateTo) filter.eventDate.$lte = new Date(options.dateTo);
+  }
+
   if (options.search) {
     const colleges = await collegeModel
       .find({ name: { $regex: options.search, $options: "i" } })

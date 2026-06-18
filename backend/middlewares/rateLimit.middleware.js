@@ -51,8 +51,26 @@ const generalLimiter = rateLimit({
   },
 });
 
+/**
+ * Rate limiter for AI query endpoint
+ * Max 10 requests per minute per IP
+ */
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: "Too many AI queries. Please try again after 1 minute.",
+    });
+  },
+});
+
 module.exports = {
   loginLimiter,
   signupLimiter,
   generalLimiter,
+  aiLimiter,
 };

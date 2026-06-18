@@ -22,6 +22,7 @@ This repository contains two main packages:
 - **Authentication:** JWT (Cookie-based), bcrypt
 - **Validation & Security:** express-validator, cors, express-rate-limit
 - **Image Upload:** Cloudinary, multer, multer-storage-cloudinary
+- **AI:** Groq SDK (two-stage LLM: extraction + response)
 
 ### Frontend
 - **Framework:** React 19, Vite
@@ -36,6 +37,8 @@ This repository contains two main packages:
 - **Colleges:** Admin-managed college registry with geospatial data.
 - **Events:** Create, update, soft-delete, and browse events.
 - **Feeds:** Supports paginated active events, trending events (cached in Redis), nearby events (geospatial search), and college-specific events.
+- **Event Filtering:** Category dropdown and college name search on the All Events page with debounced querying.
+- **AI Event Assistant:** Floating chat widget powered by Groq (llama-3.1-8b-instant for filter extraction, llama-3.3-70b-versatile for response generation). Understands natural language — "Hackathons at IIT this month" — and returns AI answers with matching event cards.
 - **Engagement:** Like/Unlike functionality with automatic trending cache invalidation.
 - **Image Upload:** Cloudinary-powered event poster/banner upload with preview on create and edit forms.
 - **Background Jobs:** BullMQ worker for processing event notification emails asynchronously.
@@ -83,6 +86,7 @@ SMTP_USER=user@example.com
 SMTP_PASS=password
 SMTP_FROM=noreply@example.com
 FRONTEND_URL=http://localhost:5173
+GROQ_API_KEY=gsk_your_groq_api_key
 NODE_ENV=development
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
@@ -200,7 +204,8 @@ frontend/
     |-- App.jsx
     |-- index.css
     |-- services/
-    |   `-- api.js
+    |   |-- api.js
+    |   `-- ai.js
     |-- context/
     |   |-- auth-context.js
     |   `-- AuthContext.jsx
@@ -214,6 +219,7 @@ frontend/
     |   |-- EventGrid.jsx
     |   |-- EventCard.jsx
     |   |-- LikeButton.jsx
+    |   |-- AiAssistant.jsx
     |   |-- CollegeSelect.jsx
     |   |-- Hero.jsx
     |   |-- PageIntro.jsx
@@ -305,7 +311,8 @@ The app is fully cookie-session based.
 
 ### Page Responsibilities
 - `Home` shows the hero plus the first three items from the general events feed.
-- `Events` shows the full active event board.
+- `Events` shows the full active event board with category dropdown filter and debounced college name search bar.
+- `Event Assistant` is a floating chat widget (FAB button, bottom-right) on all pages. It uses Groq LLMs to answer natural language queries about events and renders matching event cards inline.
 - `Trending` shows the most-liked events feed.
 - `Nearby` uses the authenticated user's college to fetch nearby college events.
 - `MyCollege` shows events for the signed-in user's own college.
@@ -325,6 +332,7 @@ The app is fully cookie-session based.
 - Renders the top-level header and nav
 - Shows `Create event` only for `Admin` and `Organizer`
 - Shows `Admin` only for `Admin`
+- Mounts the `AiAssistant` floating widget
 
 #### `CollegeSelect.jsx`
 - Async search field for signup
@@ -351,18 +359,20 @@ The styling system is a mix of Tailwind utilities and a custom theme in `src/ind
 | Variable | Purpose |
 | --- | --- |
 | `VITE_API_URL` | Optional explicit backend base URL (not needed in Docker — Nginx proxies `/api`) |
+| `GROQ_API_KEY` | Groq API key for the AI Event Assistant (two-stage LLM pipeline) |
 
 ---
 
 ## Backend Documentation
 
-The backend is a CommonJS Node.js API built around Express-style route modules, Mongoose models, Redis, BullMQ, Cloudinary, and cookie-based JWT auth. It exposes five live API domains under `/api`:
+The backend is a CommonJS Node.js API built around Express-style route modules, Mongoose models, Redis, BullMQ, Groq, Cloudinary, and cookie-based JWT auth. It exposes six live API domains under `/api`:
 - auth
 - colleges
 - events
 - likes
 - users
 - upload
+- ai
 
 In addition to the API server, the repo includes a separate BullMQ worker process for event-notification emails.
 
@@ -377,6 +387,7 @@ In addition to the API server, the repo includes a separate BullMQ worker proces
 | Queue/cache | `bullmq`, `ioredis`, `redis` | BullMQ for jobs, Redis cache for trending feed |
 | Email | `nodemailer` | Event notification emails |
 | Image upload | `cloudinary`, `multer`, `multer-storage-cloudinary` | Cloudinary-backed poster upload |
+| AI | `groq-sdk` | Two-stage LLM: llama-3.1-8b-instant (JSON filter extraction) + llama-3.3-70b-versatile (response generation) |
 
 ### Backend Scripts
 | Command | Purpose |
@@ -406,7 +417,7 @@ When using Docker, both processes (plus MongoDB, Redis, and the frontend) run as
 6. Register `express.json()` and `express.urlencoded({ extended: true })`
 7. Expose `GET /` health-style response returning `"hello"`
 8. Apply the general API rate limiter to `/api`
-9. Mount `/api/auth`, `/api/colleges`, `/api/events`, `/api/likes`, `/api/users`, and `/api/upload`
+9. Mount `/api/auth`, `/api/colleges`, `/api/events`, `/api/likes`, `/api/users`, `/api/upload`, and `/api/ai`
 10. Register the centralized error handler
 
 ### Data Model
@@ -447,7 +458,7 @@ When using Docker, both processes (plus MongoDB, Redis, and the frontend) run as
 
 #### Event Routes (`/api/events`)
 - `POST /` - Authenticated `Admin`/`Organizer` create
-- `GET /` - Paginated active events
+- `GET /` - Paginated active events; supports `category`, `search` (college name), `q` (text search title/description), `dateFrom`, and `dateTo` query params
 - `GET /my-college` - Authenticated college-scoped events
 - `GET /trending` - Cached top events
 - `GET /nearby` - Authenticated geospatial nearby events
@@ -465,6 +476,9 @@ When using Docker, both processes (plus MongoDB, Redis, and the frontend) run as
 #### Upload Routes (`/api/upload`)
 - `POST /` - Authenticated `Admin`/`Organizer` upload image to Cloudinary, returns URL
 
+#### AI Routes (`/api/ai`)
+- `POST /query` - Public (rate limited, 10/min). Accepts `{ query }`, returns `{ answer, events }`. Uses two-stage Groq LLM pipeline: extraction model parses query into structured filters, then response model generates a grounded answer from matching events.
+
 ### Queueing, Cache, Email, and Image Upload
 - A single Redis client (`config/redis.js`) is used for both caching and BullMQ.
 - **Trending Cache**: Caches top events in Redis. Key `trending_events`, TTL 60 seconds. Invalidates on like/unlike.
@@ -473,7 +487,7 @@ When using Docker, both processes (plus MongoDB, Redis, and the frontend) run as
 
 ### Validation, Errors, and Rate Limits
 - `validate.middleware.js` converts the first validation failure into an `AppError` with status `400`.
-- Rate limits applied for `/login` (5/min), `/signup` (3/min), and globally on `/api` (100/min).
+- Rate limits applied for `/login` (5/min), `/signup` (3/min), `/api/ai/query` (10/min), and globally on `/api` (100/min).
 
 ### Seeding and Bootstrap Scripts
 - `scripts/createAdmin.js`: Creates a single `Admin` user.

@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import AiAssistant from "./AiAssistant";
 
 const primaryLinks = [
   { to: "/events", label: "All events" },
@@ -120,6 +121,8 @@ function Shell() {
       <main className="mx-auto py-8 pb-16 w-[min(1200px,calc(100%-2rem))] max-md:w-[min(100%-1rem,1200px)]">
         <Outlet />
       </main>
+
+      <AiAssistant />
     </div>
   );
 }
