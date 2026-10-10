@@ -38,7 +38,7 @@ This repository contains two main packages:
 - **Events:** Create, update, soft-delete, and browse events.
 - **Feeds:** Supports paginated active events, trending events (cached in Redis), nearby events (geospatial search), and college-specific events.
 - **Event Filtering:** Category dropdown and college name search on the All Events page with debounced querying.
-- **AI Event Assistant:** Floating chat widget powered by Groq (llama-3.1-8b-instant for filter extraction, llama-3.3-70b-versatile for response generation). Understands natural language — "Hackathons at IIT this month" — and returns AI answers with matching event cards.
+- **AI Event Assistant:** Floating chat widget powered by Groq (`openai/gpt-oss-20b` for filter extraction, `openai/gpt-oss-120b` for response generation). Understands natural language — "Hackathons at IIT this month" — and returns AI answers with matching event cards.
 - **Engagement:** Like/Unlike functionality with automatic trending cache invalidation.
 - **Image Upload:** Cloudinary-powered event poster/banner upload with preview on create and edit forms.
 - **Background Jobs:** BullMQ worker for processing event notification emails asynchronously.
@@ -387,7 +387,7 @@ In addition to the API server, the repo includes a separate BullMQ worker proces
 | Queue/cache | `bullmq`, `ioredis`, `redis` | BullMQ for jobs, Redis cache for trending feed |
 | Email | `nodemailer` | Event notification emails |
 | Image upload | `cloudinary`, `multer`, `multer-storage-cloudinary` | Cloudinary-backed poster upload |
-| AI | `groq-sdk` | Two-stage LLM: llama-3.1-8b-instant (JSON filter extraction) + llama-3.3-70b-versatile (response generation) |
+| AI | `groq-sdk` | Two-stage LLM: `openai/gpt-oss-20b` (JSON filter extraction) + `openai/gpt-oss-120b` (response generation) |
 
 ### Backend Scripts
 | Command | Purpose |
